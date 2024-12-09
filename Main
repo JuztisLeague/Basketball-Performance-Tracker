@@ -216,65 +216,89 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     }
 
     // ---------------- SKILL DRILLS PANEL ------------------
-    private int shootingTimeElapsed = 0;
-    private int dribblingTimeElapsed = 0;
-    private boolean shootingPaused = false;
-    private boolean dribblingPaused = false;
+    //private int shootingTimeElapsed = 0;
+    //private int dribblingTimeElapsed = 0;
+   // private boolean shootingPaused = false;
+    //private boolean dribblingPaused = false;
 
 
     private JPanel createSkillDrillsPanel() {
-        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(8, 1, 10, 10));
 
+        // Timer Input Fields
+        JPanel inputPanel = new JPanel(new FlowLayout());
+        JLabel inputLabel = new JLabel("Set Timer (MM:SS): ");
+        JTextField minutesField = new JTextField(2);
+        JTextField secondsField = new JTextField(2);
+        inputPanel.add(inputLabel);
+        inputPanel.add(minutesField);
+        inputPanel.add(new JLabel(":"));
+        inputPanel.add(secondsField);
+
+        // Timer Labels with Bigger Font
         shootingTimerLabel = new JLabel("Shooting Timer: 00:00", JLabel.CENTER);
+        shootingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
         dribblingTimerLabel = new JLabel("Dribbling Timer: 00:00", JLabel.CENTER);
+        dribblingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
         exerciseMessageLabel = new JLabel("Select skill level to display exercise details", JLabel.CENTER);
+        exerciseMessageLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        
+        // Buttons for Shooting Timer
+        JButton startShootingButton = new JButton("Start");
+        JButton pauseShootingButton = new JButton("Pause");
+        JButton resetShootingButton = new JButton("Reset");
 
-        // Create buttons and set preferred size for smaller buttons
-        JButton startShootingButton = new JButton("Start Shooting Drill");
-        JButton pauseShootingButton = new JButton("Pause Shooting Drill");
-        JButton stopShootingButton = new JButton("Stop Shooting Drill");
-        JButton resetShootingButton = new JButton("Reset Shooting Drill");
+        // Buttons for Dribbling Timer
+        JButton startDribblingButton = new JButton("Start");
+        JButton pauseDribblingButton = new JButton("Pause");
+        JButton resetDribblingButton = new JButton("Reset");
 
-        startShootingButton.setPreferredSize(new Dimension(100, 20));  // Make button smaller
-        pauseShootingButton.setPreferredSize(new Dimension(100, 20));  // Make button smaller
-        stopShootingButton.setPreferredSize(new Dimension(150, 30));   // Make button smaller
-        resetShootingButton.setPreferredSize(new Dimension(150, 30));  // Make button smaller
+        // Button Sizes
+        Dimension buttonSize = new Dimension(80, 30);
+        startShootingButton.setPreferredSize(buttonSize);
+        pauseShootingButton.setPreferredSize(buttonSize);
+        resetShootingButton.setPreferredSize(buttonSize);
+        startDribblingButton.setPreferredSize(buttonSize);
+        pauseDribblingButton.setPreferredSize(buttonSize);
+        resetDribblingButton.setPreferredSize(buttonSize);
 
-        startShootingButton.addActionListener(e -> startShootingTimer());
-        pauseShootingButton.addActionListener(e -> pauseShootingTimer());
-        stopShootingButton.addActionListener(e -> stopShootingTimer());
-        resetShootingButton.addActionListener(e -> resetShootingTimer());
+        // Shooting Timer Logic
+        startShootingButton.addActionListener(e -> {
+            int minutes = Integer.parseInt(minutesField.getText());
+            int seconds = Integer.parseInt(secondsField.getText());
+            startTimer(minutes * 60 + seconds, shootingTimerLabel);
+        });
+        pauseShootingButton.addActionListener(e -> pauseTimer());
+        resetShootingButton.addActionListener(e -> resetTimer(shootingTimerLabel));
 
-        JButton startDribblingButton = new JButton("Start Dribbling Drill");
-        JButton pauseDribblingButton = new JButton("Pause Dribbling Drill");
-        JButton stopDribblingButton = new JButton("Stop Dribbling Drill");
-        JButton resetDribblingButton = new JButton("Reset Dribbling Drill");
+        // Dribbling Timer Logic
+        startDribblingButton.addActionListener(e -> {
+            int minutes = Integer.parseInt(minutesField.getText());
+            int seconds = Integer.parseInt(secondsField.getText());
+            startTimer(minutes * 60 + seconds, dribblingTimerLabel);
+        });
+        pauseDribblingButton.addActionListener(e -> pauseTimer());
+        resetDribblingButton.addActionListener(e -> resetTimer(dribblingTimerLabel));
 
-        startDribblingButton.setPreferredSize(new Dimension(150, 30));  // Make button smaller
-        pauseDribblingButton.setPreferredSize(new Dimension(150, 30));  // Make button smaller
-        stopDribblingButton.setPreferredSize(new Dimension(150, 30));   // Make button smaller
-        resetDribblingButton.setPreferredSize(new Dimension(150, 30));  // Make button smaller
-
-        startDribblingButton.addActionListener(e -> startDribblingTimer());
-        pauseDribblingButton.addActionListener(e -> pauseDribblingTimer());
-        stopDribblingButton.addActionListener(e -> stopDribblingTimer());
-        resetDribblingButton.addActionListener(e -> resetDribblingTimer());
-
+        // Add Components to Panel
+        panel.add(inputPanel);
         panel.add(shootingTimerLabel);
-        panel.add(startShootingButton);
-        panel.add(pauseShootingButton);
-        panel.add(stopShootingButton);
-        panel.add(resetShootingButton);
+        panel.add(createButtonPanel(startShootingButton, pauseShootingButton, resetShootingButton));
         panel.add(dribblingTimerLabel);
-        panel.add(startDribblingButton);
-        panel.add(pauseDribblingButton);
-        panel.add(stopDribblingButton);
-        panel.add(resetDribblingButton);
+        panel.add(createButtonPanel(startDribblingButton, pauseDribblingButton, resetDribblingButton));
         panel.add(exerciseMessageLabel);
 
         skillLevelComboBox.addActionListener(e -> updateExerciseMessage());
-
         return panel;
+    }
+
+    // Helper Method to Create Button Panel
+    private JPanel createButtonPanel(JButton start, JButton pause, JButton reset) {
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(start);
+        buttonPanel.add(pause);
+        buttonPanel.add(reset);
+        return buttonPanel;
     }
 
     // ---------------- RESULTS PANEL ------------------
@@ -369,85 +393,39 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     
 
     // ---------------- DRILL TIMER ACTIONS ------------------
-    private void startShootingTimer() {
-        if (shootingTimer != null && shootingTimer.isRunning()) {
-            return; // Prevent starting a new timer if one is already running
+    private Timer countdownTimer;
+    private int timeRemaining;
+
+    private void startTimer(int totalTime, JLabel timerLabel) {
+        if (countdownTimer != null && countdownTimer.isRunning()) {
+            countdownTimer.stop();
         }
-        shootingTimeElapsed = 0; // Reset to 0 seconds when starting
-        shootingTimer = new Timer(1000, e -> updateShootingTimer());
-        shootingTimer.start();
-        shootingPaused = false; // Reset pause flag
+        timeRemaining = totalTime;
+        countdownTimer = new Timer(1000, e -> {
+            if (timeRemaining <= 0) {
+                countdownTimer.stop();
+                timerLabel.setText("Time's Up!");
+            } else {
+                timeRemaining--;
+                timerLabel.setText(String.format("Timer: %02d:%02d", timeRemaining / 60, timeRemaining % 60));
+            }
+        });
+        countdownTimer.start();
     }
 
-    private void updateShootingTimer() {
-        shootingTimeElapsed++; // Increment elapsed time
-        shootingTimerLabel.setText(String.format("Shooting Timer: %02d:%02d", shootingTimeElapsed / 60, shootingTimeElapsed % 60));
-    }
-
-    private void pauseShootingTimer() {
-        if (shootingTimer != null && shootingTimer.isRunning()) {
-            shootingTimer.stop();
-            shootingPaused = true; // Mark as paused
-        }
-    }
-
-    private void stopShootingTimer() {
-        if (shootingTimer != null) {
-            shootingTimer.stop();
-            shootingTimeElapsed = 0; // Reset the timer
-            shootingTimerLabel.setText("Shooting Timer: 00:00");
+    private void pauseTimer() {
+        if (countdownTimer != null && countdownTimer.isRunning()) {
+            countdownTimer.stop();
         }
     }
 
-    // Reset function for Shooting Timer
-    private void resetShootingTimer() {
-        if (shootingTimer != null) {
-            shootingTimer.stop();
+    private void resetTimer(JLabel timerLabel) {
+        if (countdownTimer != null) {
+            countdownTimer.stop();
         }
-        shootingTimeElapsed = 0; // Reset to 0 seconds
-        shootingTimerLabel.setText("Shooting Timer: 00:00");
+        timeRemaining = 0;
+        timerLabel.setText("Timer: 00:00");
     }
-
-    // Stopwatch logic for Dribbling Timer
-    private void startDribblingTimer() {
-        if (dribblingTimer != null && dribblingTimer.isRunning()) {
-            return; // Prevent starting a new timer if one is already running
-        }
-        dribblingTimeElapsed = 0; // Reset to 0 seconds when starting
-        dribblingTimer = new Timer(1000, e -> updateDribblingTimer());
-        dribblingTimer.start();
-        dribblingPaused = false; // Reset pause flag
-    }
-
-    private void updateDribblingTimer() {
-        dribblingTimeElapsed++; // Increment elapsed time
-        dribblingTimerLabel.setText(String.format("Dribbling Timer: %02d:%02d", dribblingTimeElapsed / 60, dribblingTimeElapsed % 60));
-    }
-
-    private void pauseDribblingTimer() {
-        if (dribblingTimer != null && dribblingTimer.isRunning()) {
-            dribblingTimer.stop();
-            dribblingPaused = true; // Mark as paused
-        }
-    }
-
-    private void stopDribblingTimer() {
-        if (dribblingTimer != null) {
-            dribblingTimer.stop();
-            dribblingTimeElapsed = 0; // Reset the timer
-            dribblingTimerLabel.setText("Dribbling Timer: 00:00");
-        }
-    }
-
-    // Reset function for Dribbling Timer
-    private void resetDribblingTimer() {
-        if (dribblingTimer != null) {
-            dribblingTimer.stop();
-        }
-        dribblingTimeElapsed = 0; // Reset to 0 seconds
-        dribblingTimerLabel.setText("Dribbling Timer: 00:00");
-    }
-
     // ---------------- RESULT CALCULATION ------------------
     private void calculateResults() {
         try {
@@ -527,3 +505,4 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         }
     }
 }
+
