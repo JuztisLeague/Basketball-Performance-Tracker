@@ -1,12 +1,29 @@
+package App;
+
+import java.awt.BorderLayout;
+
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+
+import java.sql.Connection; 
+import java.sql.DriverManager; 
+import java.sql.PreparedStatement; 
+import java.sql.ResultSet; 
+import java.sql.SQLException;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class BasketballPerformanceTrackerApp extends JFrame {
 
-    private JTextField ageField, weightField, trainingDaysField, shotsMadeField, dribblingTimeField;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private JTextField ageField, weightField, trainingDaysField, shotsMadeField, dribblingTimeField;
     private JComboBox<String> bodyTypeComboBox, skillLevelComboBox;
     private JLabel shootingTimerLabel, dribblingTimerLabel, exerciseMessageLabel;
     private JTextField shootingResultsField, dribblingResultsField;
@@ -14,20 +31,24 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     private int shootingTimeRemaining, dribblingTimeRemaining;
 
     private String savedAge, savedWeight, savedBodyType, savedSkillLevel, savedTrainingDays;
-    
+
     // To store daily progress data
-    private ArrayList<DailyProgress> trainingProgressList = new ArrayList<>();
+    private DailyProgress dailyProgress;
 
     // Panel to display progress
     private JTextArea progressTextArea;
 
     // For displaying user info in progress tab
     private JLabel userInfoLabel;
+    
+    // Database connection details (new constants)
 
     public BasketballPerformanceTrackerApp() {
         setTitle("Basketball Performance Tracker");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+        connect();
 
         // Set up tabbed pane for app navigation
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -38,11 +59,35 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         tabbedPane.addTab("Results", createResultsPanel());
         tabbedPane.addTab("Progress", createProgressPanel());
 
-        add(tabbedPane);
+        getContentPane().add(tabbedPane);
 
         // Center window
         setLocationRelativeTo(null);
+        
     }
+    
+    Connection con;
+	PreparedStatement pst;
+	ResultSet rs;
+	ResultSet countResult;
+	
+	public void connect() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/basketballpt", "root", "");
+		}
+		
+		catch (ClassNotFoundException ex) {
+	        ex.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Failed to connect to database. ClassNotFoundException: " + ex.getMessage());
+	    } catch (SQLException ex) {
+	        ex.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Failed to connect to database. SQLException: " + ex.getMessage());
+	    }
+	}
+   
+    	
+    
 
     private JPanel createUserInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
@@ -55,6 +100,8 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));  // Changed to 6 rows for the save button
         formPanel.add(new JLabel("Age:"));
         ageField = new JTextField();
+        ageField.addKeyListener(new KeyAdapter() {
+        });
         formPanel.add(ageField);
 
         formPanel.add(new JLabel("Weight (kg):"));
@@ -75,6 +122,12 @@ public class BasketballPerformanceTrackerApp extends JFrame {
 
         // Add save button to store values
         JButton saveButton = new JButton("Save Info");
+        saveButton.addKeyListener(new KeyAdapter() {
+        	@Override
+        	public void keyPressed(KeyEvent e) {
+        		jLoginButtionKeyPressed(e);
+        	}
+        });
         saveButton.addActionListener(e -> saveUserInfo());
         formPanel.add(saveButton);
 
@@ -185,7 +238,12 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         return panel;
     }
 
-    private void startShootingTimer() {
+    private Object loadProgress() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private void startShootingTimer() {
         shootingTimeRemaining = 300; // 5 minutes in seconds
         shootingTimer = new Timer(1000, e -> {
             if (shootingTimeRemaining > 0) {
@@ -223,18 +281,22 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         String skillLevel = (String) skillLevelComboBox.getSelectedItem();
         switch (skillLevel) {
             case "1":
-                exerciseMessageLabel.setText("<html><b>Skill Level 1 Exercises:</b><br>Shooting Drill (4-5 minutes): 5 shots from each of 3 spots.<br>Dribbling Drill (4-5 minutes): Simple cone course (timed).</html>");
+                exerciseMessageLabel.setText("<html><b>Skill Level 1 Exercises:</b><br>Shooting Drill (4-5 minutes): 5 shots from 3 designated spots.<br>Dribbling Drill (4-5 minutes): Simple cone course.</html>");
                 break;
             case "2":
-                exerciseMessageLabel.setText("<html><b>Skill Level 2 Exercises:</b><br>Shooting Drill (4-5 minutes): 5 shots from each of 3 farther spots.<br>Dribbling Drill (4-5 minutes): Cone course (timed).</html>");
+                exerciseMessageLabel.setText("<html><b>Skill Level 2 Exercises:</b><br>Shooting Drill (4-5 minutes): 5 shots from 3 farther spots.<br>Dribbling Drill (4-5 minutes): Cone course (timed).</html>");
                 break;
             case "3":
-                exerciseMessageLabel.setText("<html><b>Skill Level 3 Exercises:</b><br>Shooting Drill (4-5 minutes): 5 shots from each of 3-point lane spots.<br>Dribbling Drill (4-5 minutes): Complex cone course.</html>");
+                exerciseMessageLabel.setText("<html><b>Skill Level 3 Exercises:</b><br>Shooting Drill (4-5 minutes): 5 shots from 3-point lane.<br>Dribbling Drill (4-5 minutes): Complex cone course.</html>");
                 break;
             default:
                 exerciseMessageLabel.setText("Select a skill level to view the exercise details.");
                 break;
         }
+    }
+
+    private void calculateResults() {
+        // Insert code to calculate shooting accuracy, dribbling time, etc.
     }
 
     private void calculateEndurance() {
@@ -249,36 +311,40 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     }
 
     private void saveUserInfo() {
-        savedAge = ageField.getText();
-        savedWeight = weightField.getText();
-        savedBodyType = (String) bodyTypeComboBox.getSelectedItem();
-        savedSkillLevel = (String) skillLevelComboBox.getSelectedItem();
-        savedTrainingDays = trainingDaysField.getText();
+    	
+    	savedAge = ageField.getText();
+    	savedWeight = weightField.getText();
+    	savedBodyType = (String) bodyTypeComboBox.getSelectedItem();
+    	savedSkillLevel = (String) skillLevelComboBox.getSelectedItem();
+    	savedTrainingDays = trainingDaysField.getText();
 
-        JOptionPane.showMessageDialog(this, "User Info Saved!", "Info", JOptionPane.INFORMATION_MESSAGE);
-        userInfoLabel.setText("<html>Age: " + savedAge + "<br>Weight: " + savedWeight + "<br>Body Type: " + savedBodyType +
-                "<br>Skill Level: " + savedSkillLevel + "<br>Training Days: " + savedTrainingDays + "</html>");
-    }
+    	try {
+    	    pst = con.prepareStatement("insert into userinfo (`age`, `weight`, `body_Type`, `skill_Level`, `training_Days`) values(?,?,?,?,?)");
+    	    pst.setString(1, savedAge);
+    	    pst.setString(2, savedWeight);
+    	    pst.setString(3, savedBodyType);  // This ensures 'body_Type' is correctly set as a String
+    	    pst.setString(4, savedSkillLevel);
+    	    pst.setString(5, savedTrainingDays);
+    	    pst.executeUpdate();
+    	    JOptionPane.showMessageDialog(null, "Record Added!");
 
-    private void loadProgress() {
-        progressTextArea.setText(""); // Clear the progress text area before loading new data
-        for (DailyProgress progress : trainingProgressList) {
-            progressTextArea.append(progress.toString() + "\n");
-        }
-    }
+    	    // Clear fields
+    	    ageField.setText("");
+    	    weightField.setText("");
+    	    bodyTypeComboBox.setSelectedItem("Slim");  // Setting default if "Slim" is an option
+    	    skillLevelComboBox.setSelectedIndex(0);   // Setting default index (0 or any valid index)
+    	    trainingDaysField.setText("");
+    	    ageField.requestFocus();
 
-    private void calculateResults() {
-        try {
-            int shotsMade = Integer.parseInt(shootingResultsField.getText());
-            int totalShots = 25; // Fixed total shots in 5 minutes
-            double shootingPercentage = (shotsMade * 100.0) / totalShots;
-            int dribblingTime = Integer.parseInt(dribblingResultsField.getText());
-            int trainingDay = Integer.parseInt(savedTrainingDays);
-            DailyProgress newProgress = new DailyProgress(shotsMade, dribblingTime, shootingPercentage, trainingDay);
-            trainingProgressList.add(newProgress);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid data for calculation!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    	    // Show confirmation message
+    	    JOptionPane.showMessageDialog(this, "User Info Saved!", "Info", JOptionPane.INFORMATION_MESSAGE);
+    	    userInfoLabel.setText("<html>Age: " + savedAge + "<br>Weight: " + savedWeight + "<br>Body Type: " + savedBodyType +
+    	            "<br>Skill Level: " + savedSkillLevel + "<br>Training Days: " + savedTrainingDays + "</html>");
+    	} catch (SQLException e) {
+    	    e.printStackTrace();
+    	    JOptionPane.showMessageDialog(this, "Failed to save user info: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    	}
+
     }
 
     private static class DailyProgress {
@@ -303,5 +369,13 @@ public class BasketballPerformanceTrackerApp extends JFrame {
             BasketballPerformanceTrackerApp app = new BasketballPerformanceTrackerApp();
             app.setVisible(true);
         });
+    }
+    
+    private void jLoginButtionKeyPressed(KeyEvent e) {
+    	
+		
+    	
+    		
+    	
     }
 }
