@@ -3,150 +3,300 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class BasketballPerformanceTrackerApp extends JFrame {
 
+    // For storing user credentials
+    private HashMap<String, String> userAccounts = new HashMap<>();
+
+    // Panels
+    private JPanel loginPanel, signUpPanel, mainAppPanel;
+
+    // Fields for User Info
     private JTextField ageField, weightField, trainingDaysField, shotsMadeField, dribblingTimeField;
     private JComboBox<String> bodyTypeComboBox, skillLevelComboBox;
-    private JLabel shootingTimerLabel, dribblingTimerLabel, exerciseMessageLabel;
-    private JTextField shootingResultsField, dribblingResultsField;
+    private JLabel shootingTimerLabel, dribblingTimerLabel, exerciseMessageLabel, userInfoLabel;
     private Timer shootingTimer, dribblingTimer;
     private int shootingTimeRemaining, dribblingTimeRemaining;
-
-    private String savedAge, savedWeight, savedBodyType, savedSkillLevel, savedTrainingDays;
     
-    // To store daily progress data
+    private String savedAge, savedWeight, savedBodyType, savedSkillLevel, savedTrainingDays;
+
+    // To store progress
     private ArrayList<DailyProgress> trainingProgressList = new ArrayList<>();
-
-    // Panel to display progress
     private JTextArea progressTextArea;
-
-    // For displaying user info in progress tab
-    private JLabel userInfoLabel;
 
     public BasketballPerformanceTrackerApp() {
         setTitle("Basketball Performance Tracker");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // Set up tabbed pane for app navigation
-        JTabbedPane tabbedPane = new JTabbedPane();
+        // Initialize panels
+        loginPanel = createLoginPanel();
+        signUpPanel = createSignUpPanel();
+        mainAppPanel = createMainAppPanel();
 
-        // Add tabs
+        setContentPane(loginPanel); // Show login panel first
+        setLocationRelativeTo(null); // Center window
+    }
+
+    // ---------------- LOGIN PANEL ------------------
+    private JPanel createLoginPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel heading = new JLabel("Login");
+        heading.setFont(new Font("Arial", Font.BOLD, 24));
+
+        JTextField usernameField = new JTextField(15);
+        JPasswordField passwordField = new JPasswordField(15);
+
+        JButton loginButton = new JButton("Login");
+        JButton goToSignUpButton = new JButton("Sign Up");
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        panel.add(heading, gbc);
+        gbc.gridy++;
+        panel.add(new JLabel("Username:"), gbc);
+        gbc.gridx++;
+        panel.add(usernameField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(new JLabel("Password:"), gbc);
+        gbc.gridx++;
+        panel.add(passwordField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(loginButton, gbc);
+        gbc.gridx++;
+        panel.add(goToSignUpButton, gbc);
+
+        loginButton.addActionListener(e -> {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+
+            if (userAccounts.containsKey(username) && userAccounts.get(username).equals(password)) {
+                JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                setContentPane(mainAppPanel); // Show the main app
+                revalidate();
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid Credentials!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        goToSignUpButton.addActionListener(e -> {
+            setContentPane(signUpPanel);
+            revalidate();
+        });
+
+        return panel;
+    }
+
+    // ---------------- SIGN-UP PANEL ------------------
+    private JPanel createSignUpPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel heading = new JLabel("Sign Up");
+        heading.setFont(new Font("Arial", Font.BOLD, 24));
+
+        JTextField usernameField = new JTextField(15);
+        JPasswordField passwordField = new JPasswordField(15);
+
+        JButton signUpButton = new JButton("Sign Up");
+        JButton backToLoginButton = new JButton("Back to Login");
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        panel.add(heading, gbc);
+        gbc.gridy++;
+        panel.add(new JLabel("New Username:"), gbc);
+        gbc.gridx++;
+        panel.add(usernameField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(new JLabel("New Password:"), gbc);
+        gbc.gridx++;
+        panel.add(passwordField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(signUpButton, gbc);
+        gbc.gridx++;
+        panel.add(backToLoginButton, gbc);
+
+        signUpButton.addActionListener(e -> {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+
+            if (!username.isEmpty() && !password.isEmpty()) {
+                if (!userAccounts.containsKey(username)) {
+                    userAccounts.put(username, password);
+                    JOptionPane.showMessageDialog(this, "Account Created Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    setContentPane(loginPanel);
+                    revalidate();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Username already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        backToLoginButton.addActionListener(e -> {
+            setContentPane(loginPanel);
+            revalidate();
+        });
+
+        return panel;
+    }
+
+    // ---------------- MAIN APP PANEL ------------------
+    private JPanel createMainAppPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        // Set a preferred size for the main panel to make it bigger
+        panel.setPreferredSize(new Dimension(800, 600));  // Set your desired width and height
+
+        JLabel welcomeLabel = new JLabel("Welcome to Basketball Performance Tracker!", JLabel.CENTER);
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 22)); // Increase font size for better visibility
+
+        // Main Tabs
+        JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("User Info", createUserInfoPanel());
         tabbedPane.addTab("Skill Drills", createSkillDrillsPanel());
         tabbedPane.addTab("Results", createResultsPanel());
         tabbedPane.addTab("Progress", createProgressPanel());
 
-        add(tabbedPane);
+        // Optional: Set preferred size for the tabbed pane if you want it bigger
+        tabbedPane.setPreferredSize(new Dimension(780, 500)); // Adjust size here
 
-        // Center window
-        setLocationRelativeTo(null);
+        panel.add(welcomeLabel, BorderLayout.NORTH);
+        panel.add(tabbedPane, BorderLayout.CENTER);
+
+        return panel;
     }
 
+    // ---------------- USER INFO PANEL ------------------
     private JPanel createUserInfoPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel heading = new JLabel("Enter Player Information");
-        heading.setFont(new Font("Arial", Font.BOLD, 18));
-        heading.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));  // Changed to 6 rows for the save button
-        formPanel.add(new JLabel("Age:"));
+        panel.add(new JLabel("Age:"));
         ageField = new JTextField();
-        formPanel.add(ageField);
+        panel.add(ageField);
 
-        formPanel.add(new JLabel("Weight (kg):"));
+        panel.add(new JLabel("Weight (kg):"));
         weightField = new JTextField();
-        formPanel.add(weightField);
+        panel.add(weightField);
 
-        formPanel.add(new JLabel("Body Type:"));
+        panel.add(new JLabel("Body Type:"));
         bodyTypeComboBox = new JComboBox<>(new String[]{"Slim", "Average", "Heavy"});
-        formPanel.add(bodyTypeComboBox);
+        panel.add(bodyTypeComboBox);
 
-        formPanel.add(new JLabel("Skill Level:"));
+        panel.add(new JLabel("Skill Level:"));
         skillLevelComboBox = new JComboBox<>(new String[]{"1", "2", "3"});
-        formPanel.add(skillLevelComboBox);
+        panel.add(skillLevelComboBox);
 
-        formPanel.add(new JLabel("Training Days:"));
+        panel.add(new JLabel("Training Days:"));
         trainingDaysField = new JTextField();
-        formPanel.add(trainingDaysField);
+        panel.add(trainingDaysField);
 
-        // Add save button to store values
         JButton saveButton = new JButton("Save Info");
         saveButton.addActionListener(e -> saveUserInfo());
-        formPanel.add(saveButton);
+        panel.add(saveButton);
 
-        panel.add(heading, BorderLayout.NORTH);
-        panel.add(formPanel, BorderLayout.CENTER);
         return panel;
     }
+
+    // ---------------- SKILL DRILLS PANEL ------------------
+    private int shootingTimeElapsed = 0;
+    private int dribblingTimeElapsed = 0;
+    private boolean shootingPaused = false;
+    private boolean dribblingPaused = false;
+
 
     private JPanel createSkillDrillsPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
 
-        JLabel heading = new JLabel("Skill Drills");
-        heading.setFont(new Font("Arial", Font.BOLD, 18));
-        heading.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JPanel drillsPanel = new JPanel(new GridLayout(5, 1, 10, 10));
-
-        shootingTimerLabel = new JLabel("Shooting Timer: 05:00", JLabel.CENTER);
-        JButton startShootingButton = new JButton("Start Shooting Drill");
-        startShootingButton.addActionListener(e -> startShootingTimer());
-        drillsPanel.add(shootingTimerLabel);
-        drillsPanel.add(startShootingButton);
-
-        dribblingTimerLabel = new JLabel("Dribbling Timer: 05:00", JLabel.CENTER);
-        JButton startDribblingButton = new JButton("Start Dribbling Drill");
-        startDribblingButton.addActionListener(e -> startDribblingTimer());
-        drillsPanel.add(dribblingTimerLabel);
-        drillsPanel.add(startDribblingButton);
-
-        // Label for exercise instructions based on skill level
+        shootingTimerLabel = new JLabel("Shooting Timer: 00:00", JLabel.CENTER);
+        dribblingTimerLabel = new JLabel("Dribbling Timer: 00:00", JLabel.CENTER);
         exerciseMessageLabel = new JLabel("Select skill level to display exercise details", JLabel.CENTER);
-        drillsPanel.add(exerciseMessageLabel);
 
-        skillLevelComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateExerciseMessage();
-            }
-        });
+        // Create buttons and set preferred size for smaller buttons
+        JButton startShootingButton = new JButton("Start Shooting Drill");
+        JButton pauseShootingButton = new JButton("Pause Shooting Drill");
+        JButton stopShootingButton = new JButton("Stop Shooting Drill");
+        JButton resetShootingButton = new JButton("Reset Shooting Drill");
 
-        panel.add(heading, BorderLayout.NORTH);
-        panel.add(drillsPanel, BorderLayout.CENTER);
+        startShootingButton.setPreferredSize(new Dimension(100, 20));  // Make button smaller
+        pauseShootingButton.setPreferredSize(new Dimension(100, 20));  // Make button smaller
+        stopShootingButton.setPreferredSize(new Dimension(150, 30));   // Make button smaller
+        resetShootingButton.setPreferredSize(new Dimension(150, 30));  // Make button smaller
+
+        startShootingButton.addActionListener(e -> startShootingTimer());
+        pauseShootingButton.addActionListener(e -> pauseShootingTimer());
+        stopShootingButton.addActionListener(e -> stopShootingTimer());
+        resetShootingButton.addActionListener(e -> resetShootingTimer());
+
+        JButton startDribblingButton = new JButton("Start Dribbling Drill");
+        JButton pauseDribblingButton = new JButton("Pause Dribbling Drill");
+        JButton stopDribblingButton = new JButton("Stop Dribbling Drill");
+        JButton resetDribblingButton = new JButton("Reset Dribbling Drill");
+
+        startDribblingButton.setPreferredSize(new Dimension(150, 30));  // Make button smaller
+        pauseDribblingButton.setPreferredSize(new Dimension(150, 30));  // Make button smaller
+        stopDribblingButton.setPreferredSize(new Dimension(150, 30));   // Make button smaller
+        resetDribblingButton.setPreferredSize(new Dimension(150, 30));  // Make button smaller
+
+        startDribblingButton.addActionListener(e -> startDribblingTimer());
+        pauseDribblingButton.addActionListener(e -> pauseDribblingTimer());
+        stopDribblingButton.addActionListener(e -> stopDribblingTimer());
+        resetDribblingButton.addActionListener(e -> resetDribblingTimer());
+
+        panel.add(shootingTimerLabel);
+        panel.add(startShootingButton);
+        panel.add(pauseShootingButton);
+        panel.add(stopShootingButton);
+        panel.add(resetShootingButton);
+        panel.add(dribblingTimerLabel);
+        panel.add(startDribblingButton);
+        panel.add(pauseDribblingButton);
+        panel.add(stopDribblingButton);
+        panel.add(resetDribblingButton);
+        panel.add(exerciseMessageLabel);
+
+        skillLevelComboBox.addActionListener(e -> updateExerciseMessage());
+
         return panel;
     }
 
+    // ---------------- RESULTS PANEL ------------------
     private JPanel createResultsPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
 
-        JLabel heading = new JLabel("Performance Results");
-        heading.setFont(new Font("Arial", Font.BOLD, 18));
-        heading.setHorizontalAlignment(SwingConstants.CENTER);
+        panel.add(new JLabel("Shots Made:"));
+        shotsMadeField = new JTextField();
+        panel.add(shotsMadeField);
 
-        JPanel resultsPanel = new JPanel(new GridLayout(4, 2, 10, 10));
-        resultsPanel.add(new JLabel("Shots Made:"));
-        shootingResultsField = new JTextField();
-        resultsPanel.add(shootingResultsField);
-
-        resultsPanel.add(new JLabel("Dribbling Time (secs):"));
-        dribblingResultsField = new JTextField();
-        resultsPanel.add(dribblingResultsField);
+        panel.add(new JLabel("Dribbling Time (secs):"));
+        dribblingTimeField = new JTextField();
+        panel.add(dribblingTimeField);
 
         JButton calculateButton = new JButton("Calculate Results");
         calculateButton.addActionListener(e -> calculateResults());
-        resultsPanel.add(calculateButton);
+        panel.add(calculateButton);
 
-        panel.add(heading, BorderLayout.NORTH);
-        panel.add(resultsPanel, BorderLayout.CENTER);
         return panel;
     }
 
+    // ---------------- PROGRESS PANEL ------------------
     private JPanel createProgressPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -184,41 +334,154 @@ public class BasketballPerformanceTrackerApp extends JFrame {
 
         return panel;
     }
+    
+    private void loadProgress() {
+        progressTextArea.setText(""); // Clear the progress text area before loading new data
+        for (DailyProgress progress : trainingProgressList) {
+            progressTextArea.append(progress.toString() + "\n");
+        }
+    }
+    
+    private void calculateEndurance() {
+        try {
+            int shotsMade = Integer.parseInt(shotsMadeField.getText());
+            int dribblingTime = Integer.parseInt(dribblingTimeField.getText());
+            int endurance = (shotsMade * 10) + (300 - dribblingTime); // Arbitrary formula for endurance
+            JOptionPane.showMessageDialog(this, "Your endurance score is: " + endurance, "Endurance", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter valid data for endurance calculation!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
+    // ---------------- USER INFO ACTION ------------------
+    private void saveUserInfo() {
+        savedAge = ageField.getText();
+        savedWeight = weightField.getText();
+        savedBodyType = (String) bodyTypeComboBox.getSelectedItem();
+        savedSkillLevel = (String) skillLevelComboBox.getSelectedItem();
+        savedTrainingDays = trainingDaysField.getText();
+
+        JOptionPane.showMessageDialog(this, "User Info Saved!", "Info", JOptionPane.INFORMATION_MESSAGE);
+        userInfoLabel.setText("<html>Age: " + savedAge + "<br>Weight: " + savedWeight + "<br>Body Type: " + savedBodyType +
+                "<br>Skill Level: " + savedSkillLevel + "<br>Training Days: " + savedTrainingDays + "</html>");
+    }
+
+    
+
+    // ---------------- DRILL TIMER ACTIONS ------------------
     private void startShootingTimer() {
-        shootingTimeRemaining = 300; // 5 minutes in seconds
-        shootingTimer = new Timer(1000, e -> {
-            if (shootingTimeRemaining > 0) {
-                shootingTimeRemaining--;
-                shootingTimerLabel.setText("Shooting Timer: " + formatTime(shootingTimeRemaining));
-            } else {
-                ((Timer) e.getSource()).stop();
-                JOptionPane.showMessageDialog(this, "Shooting Drill Complete!", "Timer", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
+        if (shootingTimer != null && shootingTimer.isRunning()) {
+            return; // Prevent starting a new timer if one is already running
+        }
+        shootingTimeElapsed = 0; // Reset to 0 seconds when starting
+        shootingTimer = new Timer(1000, e -> updateShootingTimer());
         shootingTimer.start();
+        shootingPaused = false; // Reset pause flag
     }
 
+    private void updateShootingTimer() {
+        shootingTimeElapsed++; // Increment elapsed time
+        shootingTimerLabel.setText(String.format("Shooting Timer: %02d:%02d", shootingTimeElapsed / 60, shootingTimeElapsed % 60));
+    }
+
+    private void pauseShootingTimer() {
+        if (shootingTimer != null && shootingTimer.isRunning()) {
+            shootingTimer.stop();
+            shootingPaused = true; // Mark as paused
+        }
+    }
+
+    private void stopShootingTimer() {
+        if (shootingTimer != null) {
+            shootingTimer.stop();
+            shootingTimeElapsed = 0; // Reset the timer
+            shootingTimerLabel.setText("Shooting Timer: 00:00");
+        }
+    }
+
+    // Reset function for Shooting Timer
+    private void resetShootingTimer() {
+        if (shootingTimer != null) {
+            shootingTimer.stop();
+        }
+        shootingTimeElapsed = 0; // Reset to 0 seconds
+        shootingTimerLabel.setText("Shooting Timer: 00:00");
+    }
+
+    // Stopwatch logic for Dribbling Timer
     private void startDribblingTimer() {
-        dribblingTimeRemaining = 300; // 5 minutes in seconds
-        dribblingTimer = new Timer(1000, e -> {
-            if (dribblingTimeRemaining > 0) {
-                dribblingTimeRemaining--;
-                dribblingTimerLabel.setText("Dribbling Timer: " + formatTime(dribblingTimeRemaining));
-            } else {
-                ((Timer) e.getSource()).stop();
-                JOptionPane.showMessageDialog(this, "Dribbling Drill Complete!", "Timer", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
+        if (dribblingTimer != null && dribblingTimer.isRunning()) {
+            return; // Prevent starting a new timer if one is already running
+        }
+        dribblingTimeElapsed = 0; // Reset to 0 seconds when starting
+        dribblingTimer = new Timer(1000, e -> updateDribblingTimer());
         dribblingTimer.start();
+        dribblingPaused = false; // Reset pause flag
     }
 
-    private String formatTime(int seconds) {
-        int minutes = seconds / 60;
-        int remainingSeconds = seconds % 60;
-        return String.format("%02d:%02d", minutes, remainingSeconds);
+    private void updateDribblingTimer() {
+        dribblingTimeElapsed++; // Increment elapsed time
+        dribblingTimerLabel.setText(String.format("Dribbling Timer: %02d:%02d", dribblingTimeElapsed / 60, dribblingTimeElapsed % 60));
     }
 
+    private void pauseDribblingTimer() {
+        if (dribblingTimer != null && dribblingTimer.isRunning()) {
+            dribblingTimer.stop();
+            dribblingPaused = true; // Mark as paused
+        }
+    }
+
+    private void stopDribblingTimer() {
+        if (dribblingTimer != null) {
+            dribblingTimer.stop();
+            dribblingTimeElapsed = 0; // Reset the timer
+            dribblingTimerLabel.setText("Dribbling Timer: 00:00");
+        }
+    }
+
+    // Reset function for Dribbling Timer
+    private void resetDribblingTimer() {
+        if (dribblingTimer != null) {
+            dribblingTimer.stop();
+        }
+        dribblingTimeElapsed = 0; // Reset to 0 seconds
+        dribblingTimerLabel.setText("Dribbling Timer: 00:00");
+    }
+
+    // ---------------- RESULT CALCULATION ------------------
+    private void calculateResults() {
+        try {
+            // Get shots made and validate input
+            int shotsMade = Integer.parseInt(shotsMadeField.getText());
+            int totalShots = 25; // Fixed total shots for training
+            if (shotsMade < 0 || shotsMade > totalShots) {
+                throw new NumberFormatException("Shots made should be between 0 and " + totalShots);
+            }
+
+            // Calculate shooting percentage
+            double shootingPercentage = (shotsMade * 100.0) / totalShots;
+
+            // Get dribbling time and validate input
+            int dribblingTime = Integer.parseInt(dribblingTimeField.getText());
+            if (dribblingTime < 0) {
+                throw new NumberFormatException("Dribbling time cannot be negative");
+            }
+
+            // Get training day and validate input
+            int trainingDay = Integer.parseInt(savedTrainingDays);  // Ensure `savedTrainingDays` is properly initialized and valid
+
+            // Create and store the new progress
+            DailyProgress newProgress = new DailyProgress(shotsMade, dribblingTime, shootingPercentage, trainingDay);
+            trainingProgressList.add(newProgress);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter valid data for calculation: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    	
+
+    // ---------------- UPDATE EXERCISE MESSAGE ------------------
     private void updateExerciseMessage() {
         String skillLevel = (String) skillLevelComboBox.getSelectedItem();
         switch (skillLevel) {
@@ -237,71 +500,30 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         }
     }
 
-    private void calculateEndurance() {
-        try {
-            int shotsMade = Integer.parseInt(shootingResultsField.getText());
-            int dribblingTime = Integer.parseInt(dribblingResultsField.getText());
-            int endurance = (shotsMade * 10) + (300 - dribblingTime); // Arbitrary formula for endurance
-            JOptionPane.showMessageDialog(this, "Your endurance score is: " + endurance, "Endurance", JOptionPane.INFORMATION_MESSAGE);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid data for endurance calculation!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+
+    // ---------------- MAIN ------------------
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            BasketballPerformanceTrackerApp app = new BasketballPerformanceTrackerApp();
+            app.setVisible(true);
+        });
     }
 
-    private void saveUserInfo() {
-        savedAge = ageField.getText();
-        savedWeight = weightField.getText();
-        savedBodyType = (String) bodyTypeComboBox.getSelectedItem();
-        savedSkillLevel = (String) skillLevelComboBox.getSelectedItem();
-        savedTrainingDays = trainingDaysField.getText();
-
-        JOptionPane.showMessageDialog(this, "User Info Saved!", "Info", JOptionPane.INFORMATION_MESSAGE);
-        userInfoLabel.setText("<html>Age: " + savedAge + "<br>Weight: " + savedWeight + "<br>Body Type: " + savedBodyType +
-                "<br>Skill Level: " + savedSkillLevel + "<br>Training Days: " + savedTrainingDays + "</html>");
-    }
-
-    private void loadProgress() {
-        progressTextArea.setText(""); // Clear the progress text area before loading new data
-        for (DailyProgress progress : trainingProgressList) {
-            progressTextArea.append(progress.toString() + "\n");
-        }
-    }
-
-    private void calculateResults() {
-        try {
-            int shotsMade = Integer.parseInt(shootingResultsField.getText());
-            int totalShots = 25; // Fixed total shots in 5 minutes
-            double shootingPercentage = (shotsMade * 100.0) / totalShots;
-            int dribblingTime = Integer.parseInt(dribblingResultsField.getText());
-            int trainingDay = Integer.parseInt(savedTrainingDays);
-            DailyProgress newProgress = new DailyProgress(shotsMade, dribblingTime, shootingPercentage, trainingDay);
-            trainingProgressList.add(newProgress);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid data for calculation!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private static class DailyProgress {
-        int shotsMade, dribblingTime, trainingDays;
+    // ---------------- Daily Progress Class ------------------
+    static class DailyProgress {
+    	int shotsMade, dribblingTime, trainingDays;
         double shootingPercentage;
 
-        DailyProgress(int shotsMade, int dribblingTime, double shootingPercentage, int trainingDays) {
+        public DailyProgress(int shotsMade, int dribblingTime, double shootingPercentage, int trainingDay) {
             this.shotsMade = shotsMade;
             this.dribblingTime = dribblingTime;
             this.shootingPercentage = shootingPercentage;
-            this.trainingDays = trainingDays;
+            this.trainingDays = trainingDay;
         }
 
         @Override
         public String toString() {
             return "Day " + trainingDays + ": Shots Made = " + shotsMade + ", Dribbling Time = " + dribblingTime + " sec, Shooting % = " + shootingPercentage + "%";
         }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            BasketballPerformanceTrackerApp app = new BasketballPerformanceTrackerApp();
-            app.setVisible(true);
-        });
     }
 }
