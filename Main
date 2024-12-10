@@ -3,22 +3,25 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class App1 extends JFrame {
+public class BasketballPerformanceTrackerApp extends JFrame {
 
-    // For storing user credentials
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	// For storing user credentials
     private HashMap<String, String> userAccounts = new HashMap<>();
 
     // Panels
     private JPanel loginPanel, signUpPanel, mainAppPanel;
 
     // Fields for User Info
-    private JTextField ageField, weightField, shotsMadeField, dribblingTimeField;
-    private JComboBox<String> bodyTypeComboBox, skillLevelComboBox, trainingDaysComboBox;
+    private JTextField ageField, weightField, trainingDaysField, shotsMadeField, dribblingTimeField;
+    private JComboBox<String> bodyTypeComboBox, skillLevelComboBox;
     private JLabel shootingTimerLabel, dribblingTimerLabel, exerciseMessageLabel, userInfoLabel;
     private Timer shootingTimer, dribblingTimer;
     private int shootingTimeRemaining, dribblingTimeRemaining;
@@ -29,12 +32,8 @@ public class App1 extends JFrame {
     private ArrayList<DailyProgress> trainingProgressList = new ArrayList<>();
     private JTextArea progressTextArea;
 
-	private Window signUpButton;
-
-	private Window backToLoginButton;
-
-    public App1() {
-        setTitle("Basketball Performance Tracker");
+    public BasketballPerformanceTrackerApp() {
+        setTitle("HoopsTrack");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -49,48 +48,74 @@ public class App1 extends JFrame {
 
     // ---------------- LOGIN PANEL ------------------
     private JPanel createLoginPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
+        // Custom JPanel with a background image
+        JPanel panel = new JPanel(new GridBagLayout()) {
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage(); // Path to image
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the image to fill the panel
+            }
+        };
+
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+        // Heading
         JLabel heading = new JLabel("Login");
         heading.setFont(new Font("Arial", Font.BOLD, 24));
+        heading.setForeground(Color.ORANGE); // Ensure the text is visible on the background
 
+        // Input fields
         JTextField usernameField = new JTextField(15);
         JPasswordField passwordField = new JPasswordField(15);
 
+        // Buttons
         JButton loginButton = new JButton("Login");
         JButton goToSignUpButton = new JButton("Sign Up");
 
-        panel.setLayout(null); // Disable layout manager
+        // GridBagConstraints for layout
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
 
-        // New Username Label
-        JLabel usernameLabel = new JLabel("New Username:");
-        usernameLabel.setBounds(10, 10, 120, 25); // x, y, width, height
-        panel.add(usernameLabel);
+        panel.add(heading, gbc);
 
-        // Username Field
-        usernameField.setBounds(140, 10, 200, 25);
-        panel.add(usernameField);
+        gbc.gridwidth = 1; // Reset grid width
+        gbc.gridy++;
 
-        // New Password Label
-        JLabel passwordLabel = new JLabel("New Password:");
-        passwordLabel.setBounds(10, 50, 120, 25);
-        panel.add(passwordLabel);
+        // Username Label
+        JLabel usernameLabel = new JLabel("Username:", JLabel.RIGHT);
+        usernameLabel.setForeground(Color.ORANGE); // Set text color to white
+        panel.add(usernameLabel, gbc);
 
-        // Password Field
-        passwordField.setBounds(140, 50, 200, 25);
-        panel.add(passwordField);
+        gbc.gridx++;
+        panel.add(usernameField, gbc);
 
-        // Sign-Up Button
-        signUpButton.setBounds(10, 90, 150, 30);
-        panel.add(signUpButton);
+        gbc.gridx = 0;
+        gbc.gridy++;
 
-        // Back to Login Button
-        backToLoginButton.setBounds(180, 90, 150, 30);
-        panel.add(backToLoginButton);
+        // Password Label
+        JLabel passwordLabel = new JLabel("Password:", JLabel.RIGHT);
+        passwordLabel.setForeground(Color.ORANGE); // Set text color to white
+        panel.add(passwordLabel, gbc);
 
+        gbc.gridx++;
+        panel.add(passwordField, gbc);
 
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(loginButton, gbc);
+        gbc.gridx++;
+        panel.add(goToSignUpButton, gbc);
 
+        // Login button action
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -104,6 +129,7 @@ public class App1 extends JFrame {
             }
         });
 
+        // Sign-Up button action
         goToSignUpButton.addActionListener(e -> {
             setContentPane(signUpPanel);
             revalidate();
@@ -111,54 +137,69 @@ public class App1 extends JFrame {
 
         return panel;
     }
-
     // ---------------- SIGN-UP PANEL ------------------
-    /**
-     * @return
-     */
     private JPanel createSignUpPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
+        // Custom JPanel with a background image
+        JPanel panel = new JPanel(new GridBagLayout()) {
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage(); // Load the background image
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the image to fill the panel
+            }
+        };
+
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+        // Heading
         JLabel heading = new JLabel("Sign Up");
         heading.setFont(new Font("Arial", Font.BOLD, 24));
+        heading.setForeground(Color.ORANGE); // Make text white to contrast with the background
 
+        // Input fields
         JTextField usernameField = new JTextField(15);
         JPasswordField passwordField = new JPasswordField(15);
 
+        // Labels
+        JLabel usernameLabel = new JLabel("New Username:");
+        usernameLabel.setForeground(Color.ORANGE); // White text for visibility
+        JLabel passwordLabel = new JLabel("New Password:");
+        passwordLabel.setForeground(Color.ORANGE);
+
+        // Buttons
         JButton signUpButton = new JButton("Sign Up");
         JButton backToLoginButton = new JButton("Back to Login");
 
-        panel.setLayout(null); // Disable layout manager
+        // GridBagConstraints for layout
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
 
-     // New Username Label
-     JLabel usernameLabel = new JLabel("New Username:");
-     usernameLabel.setBounds(10, 10, 120, 25); // x, y, width, height
-     panel.add(usernameLabel);
+        panel.add(heading, gbc);
+        gbc.gridy++;
+        panel.add(usernameLabel, gbc);
+        gbc.gridx++;
+        panel.add(usernameField, gbc);
 
-     // Username Field
-     usernameField.setBounds(140, 10, 200, 25);
-     panel.add(usernameField);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(passwordLabel, gbc);
+        gbc.gridx++;
+        panel.add(passwordField, gbc);
 
-     // New Password Label
-     JLabel passwordLabel = new JLabel("New Password:");
-     passwordLabel.setBounds(10, 50, 120, 25);
-     panel.add(passwordLabel);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(signUpButton, gbc);
+        gbc.gridx++;
+        panel.add(backToLoginButton, gbc);
 
-     // Password Field
-     passwordField.setBounds(140, 50, 200, 25);
-     panel.add(passwordField);
-
-     // Sign-Up Button
-     signUpButton.setBounds(10, 90, 150, 30);
-     panel.add(signUpButton);
-
-     // Back to Login Button
-     backToLoginButton.setBounds(180, 90, 150, 30);
-     panel.add(backToLoginButton);
-
-
-
+        // Sign-Up button action
         signUpButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -177,6 +218,7 @@ public class App1 extends JFrame {
             }
         });
 
+        // Back to Login button action
         backToLoginButton.addActionListener(e -> {
             setContentPane(loginPanel);
             revalidate();
@@ -185,15 +227,20 @@ public class App1 extends JFrame {
         return panel;
     }
 
+
     // ---------------- MAIN APP PANEL ------------------
     private JPanel createMainAppPanel() {
+        // JPanel with a black background color
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.BLACK); // Set background color to black
 
-        // Set a preferred size for the main panel to make it bigger
-        panel.setPreferredSize(new Dimension(800, 600));  // Set your desired width and height
+        // Set a preferred size for the main panel
+        panel.setPreferredSize(new Dimension(800, 600));
 
-        JLabel welcomeLabel = new JLabel("Welcome to Basketball Performance Tracker!", JLabel.CENTER);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 22)); // Increase font size for better visibility
+        // Heading label
+        JLabel welcomeLabel = new JLabel("Welcome to HoopsTrack!", JLabel.CENTER);
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        welcomeLabel.setForeground(Color.ORANGE); // Ensure text is visible on the black background
 
         // Main Tabs
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -202,49 +249,87 @@ public class App1 extends JFrame {
         tabbedPane.addTab("Results", createResultsPanel());
         tabbedPane.addTab("Progress", createProgressPanel());
 
-        // Optional: Set preferred size for the tabbed pane if you want it bigger
-        tabbedPane.setPreferredSize(new Dimension(780, 500)); // Adjust size here
+        // Optional: Set preferred size for the tabbed pane
+        tabbedPane.setPreferredSize(new Dimension(780, 500));
 
+        // Add components to the panel
         panel.add(welcomeLabel, BorderLayout.NORTH);
         panel.add(tabbedPane, BorderLayout.CENTER);
 
         return panel;
     }
 
+
+
     // ---------------- USER INFO PANEL ------------------
     private JPanel createUserInfoPanel() {
-        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // Custom JPanel with a background image
+        JPanel backgroundPanel = new JPanel(new BorderLayout()) {
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
 
-        panel.add(new JLabel("Age:"));
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
+            }
+        };
+
+        // Inner panel with GridLayout for form components
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        formPanel.setOpaque(false); // Make the form panel transparent so the background is visible
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Form components
+        JLabel ageLabel = new JLabel("Age:");
+        ageLabel.setForeground(Color.ORANGE); // Set font color to orange
+        formPanel.add(ageLabel);
+
         ageField = new JTextField();
-        panel.add(ageField);
+        formPanel.add(ageField);
 
-        panel.add(new JLabel("Weight (kg):"));
+        JLabel weightLabel = new JLabel("Weight (kg):");
+        weightLabel.setForeground(Color.ORANGE);
+        formPanel.add(weightLabel);
+
         weightField = new JTextField();
-        panel.add(weightField);
+        formPanel.add(weightField);
 
-        panel.add(new JLabel("Body Type:"));
-        bodyTypeComboBox = new JComboBox<>(new String[]{"- No type selected -", "Slim", "Average", "Heavy"});
-        bodyTypeComboBox.setToolTipText("Select corresponding body type");
-        panel.add(bodyTypeComboBox);
+        JLabel bodyTypeLabel = new JLabel("Body Type:");
+        bodyTypeLabel.setForeground(Color.ORANGE);
+        formPanel.add(bodyTypeLabel);
 
-        panel.add(new JLabel("Skill Level:"));
-        skillLevelComboBox = new JComboBox<>(new String[]{"- No level selected -" ,"1", "2", "3"});
-        skillLevelComboBox.setToolTipText("Select corresponding level");
-        panel.add(skillLevelComboBox);
+        bodyTypeComboBox = new JComboBox<>(new String[]{"Slim", "Average", "Heavy"});
+        formPanel.add(bodyTypeComboBox);
 
-        panel.add(new JLabel("Training Days:"));
-        trainingDaysComboBox = new JComboBox<>(new String[]{"- No schedule selected -" ,"Monday, Wednesday & Friday", "Tuesday & Thursday", "Saturday & Sunday"});
-        trainingDaysComboBox.setToolTipText("Select corresponding schedule");
-        panel.add(trainingDaysComboBox);
+        JLabel skillLevelLabel = new JLabel("Skill Level:");
+        skillLevelLabel.setForeground(Color.ORANGE);
+        formPanel.add(skillLevelLabel);
+
+        skillLevelComboBox = new JComboBox<>(new String[]{"1", "2", "3"});
+        formPanel.add(skillLevelComboBox);
+
+        JLabel trainingDaysLabel = new JLabel("Training Days:");
+        trainingDaysLabel.setForeground(Color.ORANGE);
+        formPanel.add(trainingDaysLabel);
+
+        trainingDaysField = new JTextField();
+        formPanel.add(trainingDaysField);
+
 
         JButton saveButton = new JButton("Save Info");
         saveButton.addActionListener(e -> saveUserInfo());
-        panel.add(saveButton);
+        formPanel.add(saveButton);
 
-        return panel;
+        // Add the form panel to the background panel
+        backgroundPanel.add(formPanel, BorderLayout.CENTER);
+
+        return backgroundPanel;
     }
+
 
     // ---------------- SKILL DRILLS PANEL ------------------
     //private int shootingTimeElapsed = 0;
@@ -254,11 +339,27 @@ public class App1 extends JFrame {
 
 
     private JPanel createSkillDrillsPanel() {
-        JPanel panel = new JPanel(new GridLayout(8, 1, 10, 10));
+        // Custom JPanel with a background image
+        JPanel panel = new JPanel(new GridLayout(8, 1, 10, 10)) {
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
+            }
+        };
+        panel.setOpaque(false); // Make sure the panel paints the background correctly
 
         // Timer Input Fields
         JPanel inputPanel = new JPanel(new FlowLayout());
+        inputPanel.setOpaque(false); // Transparent background for sub-panels
         JLabel inputLabel = new JLabel("Set Timer (MM:SS): ");
+        inputLabel.setForeground(Color.ORANGE); // Set font color to orange
         JTextField minutesField = new JTextField(2);
         JTextField secondsField = new JTextField(2);
         inputPanel.add(inputLabel);
@@ -269,11 +370,16 @@ public class App1 extends JFrame {
         // Timer Labels with Bigger Font
         shootingTimerLabel = new JLabel("Shooting Timer: 00:00", JLabel.CENTER);
         shootingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        shootingTimerLabel.setForeground(Color.ORANGE);
+
         dribblingTimerLabel = new JLabel("Dribbling Timer: 00:00", JLabel.CENTER);
         dribblingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        dribblingTimerLabel.setForeground(Color.ORANGE);
+
         exerciseMessageLabel = new JLabel("Select skill level to display exercise details", JLabel.CENTER);
         exerciseMessageLabel.setFont(new Font("Arial", Font.BOLD, 15));
-        
+        exerciseMessageLabel.setForeground(Color.ORANGE);
+
         // Buttons for Shooting Timer
         JButton startShootingButton = new JButton("Start");
         JButton pauseShootingButton = new JButton("Pause");
@@ -326,24 +432,47 @@ public class App1 extends JFrame {
     // Helper Method to Create Button Panel
     private JPanel createButtonPanel(JButton start, JButton pause, JButton reset) {
         JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.setOpaque(false); // Ensure buttons panel is transparent
         buttonPanel.add(start);
         buttonPanel.add(pause);
         buttonPanel.add(reset);
         return buttonPanel;
     }
 
+
     // ---------------- RESULTS PANEL ------------------
     private JPanel createResultsPanel() {
-        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+        // Custom JPanel with a background image
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10)) {
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
 
-        panel.add(new JLabel("Shots Made:"));
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
+            }
+        };
+        panel.setOpaque(false); // Make sure the panel paints the background correctly
+
+        // Shots Made Label
+        JLabel shotsMadeLabel = new JLabel("Shots Made:");
+        shotsMadeLabel.setForeground(Color.ORANGE); // Set font color to orange
+        panel.add(shotsMadeLabel);
         shotsMadeField = new JTextField();
         panel.add(shotsMadeField);
 
-        panel.add(new JLabel("Dribbling Time (secs):"));
+        // Dribbling Time Label
+        JLabel dribblingTimeLabel = new JLabel("Dribbling Time (secs):");
+        dribblingTimeLabel.setForeground(Color.ORANGE); // Set font color to orange
+        panel.add(dribblingTimeLabel);
         dribblingTimeField = new JTextField();
         panel.add(dribblingTimeField);
 
+        // Calculate Button
         JButton calculateButton = new JButton("Calculate Results");
         calculateButton.addActionListener(e -> calculateResults());
         panel.add(calculateButton);
@@ -351,14 +480,30 @@ public class App1 extends JFrame {
         return panel;
     }
 
+
     // ---------------- PROGRESS PANEL ------------------
     private JPanel createProgressPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // Custom JPanel with a background image
+        JPanel panel = new JPanel(new BorderLayout(10, 10)) {
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
 
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
+            }
+        };
+        panel.setOpaque(false); // Make sure the panel paints the background correctly
+
+        // Heading label
         JLabel heading = new JLabel("Training Progress");
         heading.setFont(new Font("Arial", Font.BOLD, 18));
         heading.setHorizontalAlignment(SwingConstants.CENTER);
+        heading.setForeground(Color.ORANGE); // Set font color to orange
 
         // Progress Text Area
         progressTextArea = new JTextArea(10, 30);
@@ -371,6 +516,7 @@ public class App1 extends JFrame {
 
         // User info label
         userInfoLabel = new JLabel("User Info: Not Available", JLabel.CENTER);
+        userInfoLabel.setForeground(Color.ORANGE); // Set font color to orange
 
         // Button to load progress
         JButton loadProgressButton = new JButton("Load Training Progress");
@@ -379,16 +525,24 @@ public class App1 extends JFrame {
         // Panel layout
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+
+        // Set the background color of the bottomPanel to black
+        bottomPanel.setBackground(Color.BLACK);
+
+        // Add the components to the panel
         bottomPanel.add(calculateEnduranceButton);
         bottomPanel.add(userInfoLabel);
         bottomPanel.add(loadProgressButton);
 
+
+        // Add components to the main panel
         panel.add(heading, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(bottomPanel, BorderLayout.SOUTH);
 
         return panel;
     }
+
     
     private void loadProgress() {
         progressTextArea.setText(""); // Clear the progress text area before loading new data
@@ -410,74 +564,28 @@ public class App1 extends JFrame {
 
     // ---------------- USER INFO ACTION ------------------
     private void saveUserInfo() {
+        // Save the user information
         savedAge = ageField.getText();
         savedWeight = weightField.getText();
         savedBodyType = (String) bodyTypeComboBox.getSelectedItem();
         savedSkillLevel = (String) skillLevelComboBox.getSelectedItem();
-        savedTrainingDays = (String) trainingDaysComboBox.getSelectedItem();
+        savedTrainingDays = trainingDaysField.getText();
 
+        // Show a message when user info is saved
         JOptionPane.showMessageDialog(this, "User Info Saved!", "Info", JOptionPane.INFORMATION_MESSAGE);
+
+        // Set the text of the user info label with saved data
         userInfoLabel.setText("<html>Age: " + savedAge + "<br>Weight: " + savedWeight + "<br>Body Type: " + savedBodyType +
                 "<br>Skill Level: " + savedSkillLevel + "<br>Training Days: " + savedTrainingDays + "</html>");
-        
-     // Retrieve field values
-        String age = ageField.getText().trim();
-        String weight = weightField.getText().trim();
-        String bodyType = (String) bodyTypeComboBox.getSelectedItem();
-        String skillLevel = (String) skillLevelComboBox.getSelectedItem();
-        String trainingDays = (String) trainingDaysComboBox.getSelectedItem();
 
-        // Collect all validation errors
-        StringBuilder errors = new StringBuilder();
+        // Set background color of the panel to black
+        userInfoLabel.setBackground(Color.BLACK);  // Background color of the label
+        userInfoLabel.setOpaque(true);  // Make sure the background color is visible
 
-        // Validate age (whole number)
-        if (age.isEmpty()) {
-            errors.append("Age cannot be blank.\n");
-        } else {
-            try {
-                Integer.parseInt(age);  // Check if age is a valid integer
-            } catch (NumberFormatException ex) {
-                errors.append("Age must be a whole number.\n");
-            }
-        }
-
-        // Validate weight (number with up to 2 decimal places)
-        if (weight.isEmpty()) {
-            errors.append("Weight cannot be blank.\n");
-        } else {
-            try {
-                // Validate weight as a number with up to two decimal places
-                if (!weight.matches("^\\d+(\\.\\d{1,2})?$")) {
-                    // Round the weight to 2 decimal places if more than 2 decimals
-                    BigDecimal bd = new BigDecimal(weight);
-                    bd = bd.setScale(2, RoundingMode.HALF_UP);
-                    weightField.setText(bd.toString()); // Update the weight field with rounded value
-                }
-            } catch (NumberFormatException ex) {
-                errors.append("Invalid weight format.\n");
-            }
-        }
-
-        // Validate combo boxes
-        if ("- No type selected -".equals(bodyType)) {
-            errors.append("Please select a valid body type.\n");
-        }
-        if ("- No level selected -".equals(skillLevel)) {
-            errors.append("Please select a valid skill level.\n");
-        }
-        if ("- No schedule selected -".equals(trainingDays)) {
-            errors.append("Please select valid training days.\n");
-        }
-
-        // Show error messages if any fields are invalid
-        if (errors.length() > 0) {
-            JOptionPane.showMessageDialog(null, errors.toString(), "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return; // Prevent saving if there are validation errors
-        }
-
-        // If all fields are valid, proceed with saving
-        JOptionPane.showMessageDialog(null, "Information saved successfully!");
+        // Set font color to orange
+        userInfoLabel.setForeground(Color.ORANGE);  // Font color to orange
     }
+
 
     
 
@@ -571,7 +679,7 @@ public class App1 extends JFrame {
     // ---------------- MAIN ------------------
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            App1 app = new App1();
+            BasketballPerformanceTrackerApp app = new BasketballPerformanceTrackerApp();
             app.setVisible(true);
         });
     }
