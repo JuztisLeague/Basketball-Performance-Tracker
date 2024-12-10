@@ -1,11 +1,14 @@
+package App;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BasketballPerformanceTrackerApp extends JFrame {
+public class App1 extends JFrame {
 
     // For storing user credentials
     private HashMap<String, String> userAccounts = new HashMap<>();
@@ -14,8 +17,8 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     private JPanel loginPanel, signUpPanel, mainAppPanel;
 
     // Fields for User Info
-    private JTextField ageField, weightField, trainingDaysField, shotsMadeField, dribblingTimeField;
-    private JComboBox<String> bodyTypeComboBox, skillLevelComboBox;
+    private JTextField ageField, weightField, shotsMadeField, dribblingTimeField;
+    private JComboBox<String> bodyTypeComboBox, skillLevelComboBox, trainingDaysComboBox;
     private JLabel shootingTimerLabel, dribblingTimerLabel, exerciseMessageLabel, userInfoLabel;
     private Timer shootingTimer, dribblingTimer;
     private int shootingTimeRemaining, dribblingTimeRemaining;
@@ -26,7 +29,11 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     private ArrayList<DailyProgress> trainingProgressList = new ArrayList<>();
     private JTextArea progressTextArea;
 
-    public BasketballPerformanceTrackerApp() {
+	private Window signUpButton;
+
+	private Window backToLoginButton;
+
+    public App1() {
         setTitle("Basketball Performance Tracker");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -54,26 +61,35 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         JButton loginButton = new JButton("Login");
         JButton goToSignUpButton = new JButton("Sign Up");
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        panel.setLayout(null); // Disable layout manager
 
-        panel.add(heading, gbc);
-        gbc.gridy++;
-        panel.add(new JLabel("Username:"), gbc);
-        gbc.gridx++;
-        panel.add(usernameField, gbc);
-        gbc.gridx = 0;
-        gbc.gridy++;
-        panel.add(new JLabel("Password:"), gbc);
-        gbc.gridx++;
-        panel.add(passwordField, gbc);
-        gbc.gridx = 0;
-        gbc.gridy++;
-        panel.add(loginButton, gbc);
-        gbc.gridx++;
-        panel.add(goToSignUpButton, gbc);
+        // New Username Label
+        JLabel usernameLabel = new JLabel("New Username:");
+        usernameLabel.setBounds(10, 10, 120, 25); // x, y, width, height
+        panel.add(usernameLabel);
+
+        // Username Field
+        usernameField.setBounds(140, 10, 200, 25);
+        panel.add(usernameField);
+
+        // New Password Label
+        JLabel passwordLabel = new JLabel("New Password:");
+        passwordLabel.setBounds(10, 50, 120, 25);
+        panel.add(passwordLabel);
+
+        // Password Field
+        passwordField.setBounds(140, 50, 200, 25);
+        panel.add(passwordField);
+
+        // Sign-Up Button
+        signUpButton.setBounds(10, 90, 150, 30);
+        panel.add(signUpButton);
+
+        // Back to Login Button
+        backToLoginButton.setBounds(180, 90, 150, 30);
+        panel.add(backToLoginButton);
+
+
 
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
@@ -97,6 +113,9 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     }
 
     // ---------------- SIGN-UP PANEL ------------------
+    /**
+     * @return
+     */
     private JPanel createSignUpPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -110,26 +129,35 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         JButton signUpButton = new JButton("Sign Up");
         JButton backToLoginButton = new JButton("Back to Login");
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        panel.setLayout(null); // Disable layout manager
 
-        panel.add(heading, gbc);
-        gbc.gridy++;
-        panel.add(new JLabel("New Username:"), gbc);
-        gbc.gridx++;
-        panel.add(usernameField, gbc);
-        gbc.gridx = 0;
-        gbc.gridy++;
-        panel.add(new JLabel("New Password:"), gbc);
-        gbc.gridx++;
-        panel.add(passwordField, gbc);
-        gbc.gridx = 0;
-        gbc.gridy++;
-        panel.add(signUpButton, gbc);
-        gbc.gridx++;
-        panel.add(backToLoginButton, gbc);
+     // New Username Label
+     JLabel usernameLabel = new JLabel("New Username:");
+     usernameLabel.setBounds(10, 10, 120, 25); // x, y, width, height
+     panel.add(usernameLabel);
+
+     // Username Field
+     usernameField.setBounds(140, 10, 200, 25);
+     panel.add(usernameField);
+
+     // New Password Label
+     JLabel passwordLabel = new JLabel("New Password:");
+     passwordLabel.setBounds(10, 50, 120, 25);
+     panel.add(passwordLabel);
+
+     // Password Field
+     passwordField.setBounds(140, 50, 200, 25);
+     panel.add(passwordField);
+
+     // Sign-Up Button
+     signUpButton.setBounds(10, 90, 150, 30);
+     panel.add(signUpButton);
+
+     // Back to Login Button
+     backToLoginButton.setBounds(180, 90, 150, 30);
+     panel.add(backToLoginButton);
+
+
 
         signUpButton.addActionListener(e -> {
             String username = usernameField.getText();
@@ -197,16 +225,19 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         panel.add(weightField);
 
         panel.add(new JLabel("Body Type:"));
-        bodyTypeComboBox = new JComboBox<>(new String[]{"Slim", "Average", "Heavy"});
+        bodyTypeComboBox = new JComboBox<>(new String[]{"- No type selected -", "Slim", "Average", "Heavy"});
+        bodyTypeComboBox.setToolTipText("Select corresponding body type");
         panel.add(bodyTypeComboBox);
 
         panel.add(new JLabel("Skill Level:"));
-        skillLevelComboBox = new JComboBox<>(new String[]{"1", "2", "3"});
+        skillLevelComboBox = new JComboBox<>(new String[]{"- No level selected -" ,"1", "2", "3"});
+        skillLevelComboBox.setToolTipText("Select corresponding level");
         panel.add(skillLevelComboBox);
 
         panel.add(new JLabel("Training Days:"));
-        trainingDaysField = new JTextField();
-        panel.add(trainingDaysField);
+        trainingDaysComboBox = new JComboBox<>(new String[]{"- No schedule selected -" ,"Monday, Wednesday & Friday", "Tuesday & Thursday", "Saturday & Sunday"});
+        trainingDaysComboBox.setToolTipText("Select corresponding schedule");
+        panel.add(trainingDaysComboBox);
 
         JButton saveButton = new JButton("Save Info");
         saveButton.addActionListener(e -> saveUserInfo());
@@ -383,11 +414,69 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         savedWeight = weightField.getText();
         savedBodyType = (String) bodyTypeComboBox.getSelectedItem();
         savedSkillLevel = (String) skillLevelComboBox.getSelectedItem();
-        savedTrainingDays = trainingDaysField.getText();
+        savedTrainingDays = (String) trainingDaysComboBox.getSelectedItem();
 
         JOptionPane.showMessageDialog(this, "User Info Saved!", "Info", JOptionPane.INFORMATION_MESSAGE);
         userInfoLabel.setText("<html>Age: " + savedAge + "<br>Weight: " + savedWeight + "<br>Body Type: " + savedBodyType +
                 "<br>Skill Level: " + savedSkillLevel + "<br>Training Days: " + savedTrainingDays + "</html>");
+        
+     // Retrieve field values
+        String age = ageField.getText().trim();
+        String weight = weightField.getText().trim();
+        String bodyType = (String) bodyTypeComboBox.getSelectedItem();
+        String skillLevel = (String) skillLevelComboBox.getSelectedItem();
+        String trainingDays = (String) trainingDaysComboBox.getSelectedItem();
+
+        // Collect all validation errors
+        StringBuilder errors = new StringBuilder();
+
+        // Validate age (whole number)
+        if (age.isEmpty()) {
+            errors.append("Age cannot be blank.\n");
+        } else {
+            try {
+                Integer.parseInt(age);  // Check if age is a valid integer
+            } catch (NumberFormatException ex) {
+                errors.append("Age must be a whole number.\n");
+            }
+        }
+
+        // Validate weight (number with up to 2 decimal places)
+        if (weight.isEmpty()) {
+            errors.append("Weight cannot be blank.\n");
+        } else {
+            try {
+                // Validate weight as a number with up to two decimal places
+                if (!weight.matches("^\\d+(\\.\\d{1,2})?$")) {
+                    // Round the weight to 2 decimal places if more than 2 decimals
+                    BigDecimal bd = new BigDecimal(weight);
+                    bd = bd.setScale(2, RoundingMode.HALF_UP);
+                    weightField.setText(bd.toString()); // Update the weight field with rounded value
+                }
+            } catch (NumberFormatException ex) {
+                errors.append("Invalid weight format.\n");
+            }
+        }
+
+        // Validate combo boxes
+        if ("- No type selected -".equals(bodyType)) {
+            errors.append("Please select a valid body type.\n");
+        }
+        if ("- No level selected -".equals(skillLevel)) {
+            errors.append("Please select a valid skill level.\n");
+        }
+        if ("- No schedule selected -".equals(trainingDays)) {
+            errors.append("Please select valid training days.\n");
+        }
+
+        // Show error messages if any fields are invalid
+        if (errors.length() > 0) {
+            JOptionPane.showMessageDialog(null, errors.toString(), "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return; // Prevent saving if there are validation errors
+        }
+
+        // If all fields are valid, proceed with saving
+        JOptionPane.showMessageDialog(null, "Information saved successfully!");
     }
 
     
@@ -482,7 +571,7 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     // ---------------- MAIN ------------------
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            BasketballPerformanceTrackerApp app = new BasketballPerformanceTrackerApp();
+            App1 app = new App1();
             app.setVisible(true);
         });
     }
@@ -505,4 +594,3 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         }
     }
 }
-
