@@ -1,0 +1,147 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+
+public class LogInPage extends JPanel {
+	private Map<String, String> userAccounts = new HashMap<>();
+    private JPanel mainAppPanel;
+    private JPanel signUpPanel;
+    private JPanel login;
+    
+    public LogInPage(Map<String, String> userAccounts, JPanel mainAppPanel, JPanel signUpPanel) {
+        this.userAccounts = userAccounts;
+        this.mainAppPanel = mainAppPanel;
+        this.signUpPanel = signUpPanel;
+
+        // Initialize the login panel (You should have a method or code that creates this panel)
+        JPanel login = LoginPagePanel(); 
+        
+        // Add the login panel to the LogInPage (this JPanel)
+        this.setLayout(new BorderLayout());
+        this.add(login, BorderLayout.CENTER); // Add login panel to the center of this JPanel
+
+        // Optionally, set size, preferred size, or anything else needed
+        setPreferredSize(new Dimension(800, 600));  // Set the size to 800x600 if needed
+    }
+
+    
+
+	private JPanel LoginPagePanel() {
+    	
+    	//setLayout(new GridBagLayout());
+        //setPreferredSize(new Dimension(800, 600));
+    	
+   
+        setLayout(new GridBagLayout());
+
+        // Custom JPanel with a background image
+        JPanel panel = new JPanel(new GridBagLayout()) {
+        
+            private static final long serialVersionUID = 1L;
+            private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the image to fill the panel
+            }
+        };
+        setLayout(new GridBagLayout());
+        setPreferredSize(new Dimension(800, 600));
+        
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Heading
+        JLabel heading = new JLabel("Login");
+        heading.setFont(new Font("Arial", Font.BOLD, 24));
+        heading.setForeground(Color.ORANGE);
+
+        // Input fields
+        JTextField usernameField = new JTextField(15);
+        JPasswordField passwordField = new JPasswordField(15);
+
+        // Buttons
+        JButton loginButton = new JButton("Login");
+        JButton goToSignUpButton = new JButton("Sign Up");
+
+        // GridBagConstraints for layout
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+
+        panel.add(heading, gbc);
+
+        gbc.gridwidth = 1;
+        gbc.gridy++;
+
+        JLabel usernameLabel = new JLabel("Username:", JLabel.RIGHT);
+        usernameLabel.setForeground(Color.ORANGE);
+        panel.add(usernameLabel, gbc);
+
+        gbc.gridx++;
+        panel.add(usernameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+
+        JLabel passwordLabel = new JLabel("Password:", JLabel.RIGHT);
+        passwordLabel.setForeground(Color.ORANGE);
+        panel.add(passwordLabel, gbc);
+
+        gbc.gridx++;
+        panel.add(passwordField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(loginButton, gbc);
+        gbc.gridx++;
+        panel.add(goToSignUpButton, gbc);
+
+        loginButton.addActionListener(e -> {
+            // Retrieve username and password inputs
+            String username = usernameField.getText().trim();
+            String password = new String(passwordField.getPassword()).trim();
+
+            // Check for empty fields
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Verify credentials
+            if (userAccounts.containsKey(username) && userAccounts.get(username).equals(password)) {
+                JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                // Find the container with CardLayout (e.g., the main application frame)
+                Container parent = this.getParent();
+                if (parent.getLayout() instanceof CardLayout) {
+                    CardLayout cardLayout = (CardLayout) parent.getLayout();
+                    cardLayout.show(parent, "MainAppPanel"); // Name of the target panel
+                } else {
+                    JOptionPane.showMessageDialog(this, "CardLayout not found!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                // Show error for invalid credentials
+                JOptionPane.showMessageDialog(this, "Invalid Credentials!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+
+        // Sign-Up button action
+        goToSignUpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Assuming you're passing the CardLayout from the JFrame to this page
+                CardLayout cardLayout = (CardLayout) getParent().getLayout(); // getParent() is the JFrame or JPanel containing the CardLayout
+                cardLayout.show(getParent(), "SignUpPanel"); // "SignUpPanel" is the name you gave it when adding the panel
+            }
+        });
+        this.add(panel);
+		return panel;
+    }
+}
