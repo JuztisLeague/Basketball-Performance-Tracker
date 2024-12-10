@@ -1,0 +1,145 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+
+public class SignInPage extends JPanel {
+    private JPanel mainAppPanel;
+    private JPanel loginPanel;
+    private Map<String, String> userAccounts = new HashMap<>();
+    
+    
+    public SignInPage(Map<String, String> userAccounts, JPanel mainAppPanel, JPanel loginPanel) {
+    	this.userAccounts = userAccounts;
+        this.mainAppPanel = mainAppPanel;
+        this.loginPanel = loginPanel;
+        
+        JPanel signin = SignInPanel(); 
+        
+        // Add the login panel to the LogInPage (this JPanel)
+        this.setLayout(new BorderLayout());
+        this.add(signin, BorderLayout.CENTER); // Add login panel to the center of this JPanel
+
+        // Optionally, set size, preferred size, or anything else needed
+        setPreferredSize(new Dimension(800, 600));  // Set the size to 800x600 if needed
+    }
+
+    
+    
+    private JPanel SignInPanel() {
+        
+        setLayout(new GridBagLayout());
+
+        // Custom JPanel with a background image
+        JPanel panel = new JPanel(new GridBagLayout()) {
+            private static final long serialVersionUID = 1L;
+            private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the image to fill the panel
+            }
+        };
+
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Heading
+        JLabel heading = new JLabel("Sign Up");
+        heading.setFont(new Font("Arial", Font.BOLD, 24));
+        heading.setForeground(Color.ORANGE);
+
+        // Input fields
+        JTextField usernameField = new JTextField(15);
+        JPasswordField passwordField = new JPasswordField(15);
+
+        // Buttons
+        JButton signUpButton = new JButton("Sign Up");
+        JButton goToLoginButton = new JButton("Back to Login");
+
+        // GridBagConstraints for layout
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+
+        panel.add(heading, gbc);
+
+        gbc.gridwidth = 1;
+        gbc.gridy++;
+
+        JLabel usernameLabel = new JLabel("Username:", JLabel.RIGHT);
+        usernameLabel.setForeground(Color.ORANGE);
+        panel.add(usernameLabel, gbc);
+
+        gbc.gridx++;
+        panel.add(usernameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+
+        JLabel passwordLabel = new JLabel("Password:", JLabel.RIGHT);
+        passwordLabel.setForeground(Color.ORANGE);
+        panel.add(passwordLabel, gbc);
+
+        gbc.gridx++;
+        panel.add(passwordField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(signUpButton, gbc);
+        gbc.gridx++;
+        panel.add(goToLoginButton, gbc);
+
+        // Sign-Up button action
+        signUpButton.addActionListener(e -> {
+            String username = usernameField.getText().trim();
+            String password = new String(passwordField.getPassword()).trim();
+
+            // Check if the username or password fields are empty
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(SignInPage.this, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Check if the username already exists in the userAccounts map
+            if (!userAccounts.containsKey(username)) {
+                // Store the new username and password
+                userAccounts.put(username, password);
+
+                // Show a success message
+                JOptionPane.showMessageDialog(SignInPage.this, "Account Created Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                // Switch to the login screen
+                Container parent = SignInPage.this.getParent();
+                if (parent.getLayout() instanceof CardLayout) {
+                    CardLayout cardLayout = (CardLayout) parent.getLayout();
+                    cardLayout.show(parent, "LoginPanel"); // Assuming "LoginPanel" is the name of your login panel
+                } else {
+                    JOptionPane.showMessageDialog(SignInPage.this, "Failed to switch panels!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                // Show an error if the username already exists
+                JOptionPane.showMessageDialog(SignInPage.this, "Username already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+
+
+        // Back to Login button action
+        goToLoginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Switch to the LogInPage when the "Go to Login" button is clicked
+                CardLayout cardLayout = (CardLayout) getParent().getLayout();
+                cardLayout.show(getParent(), "LoginPanel");
+            }
+        });
+
+        this.add(panel);
+		return panel;
+    }
+}
