@@ -21,7 +21,7 @@ public class userLogin extends JFrame {
     private JButton loginButton;
 
     // Database connection manager
-    private Database database;
+   private Database database;
     private Connection con;
     private JButton signUpButton;
     private JLabel question;
@@ -53,7 +53,7 @@ public class userLogin extends JFrame {
     public userLogin() {
         // Initialize the database connection
         database = new Database();
-        con = database.getConnection();
+       con = database.getConnection();
 
         // Initialize UI
         initialize();
@@ -66,23 +66,38 @@ public class userLogin extends JFrame {
         setTitle("User Login");
         setBounds(0, 0, 800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setLayout(null);
         setLocationRelativeTo(null);
 
-        JLabel lblUsername = new JLabel("Username");
-        lblUsername.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        // Custom JPanel with a background image
+        JPanel panel = new JPanel(new GridBagLayout()) {
+            private static final long serialVersionUID = 1L;
+            private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the image to fill the panel
+            }
+        };
+        panel.setLayout(null);  // Using null layout to manually position components
+
+        // Adding components to the custom panel
+        JLabel lblUsername = new JLabel("Username:");
+        lblUsername.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        lblUsername.setForeground(Color.ORANGE);
         lblUsername.setBounds(220, 249, 138, 25);
-        getContentPane().add(lblUsername);
+        panel.add(lblUsername);
 
         usernameField = new JTextField();
-        usernameField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        usernameField.setBounds(368, 239, 200, 35);
-        getContentPane().add(usernameField);
+        usernameField.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        usernameField.setBounds(340, 249, 150, 25);
+        panel.add(usernameField);
 
-        JLabel lblPassword = new JLabel("Password");
-        lblPassword.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        JLabel lblPassword = new JLabel("Password:");
+        lblPassword.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        lblPassword.setForeground(Color.ORANGE);
         lblPassword.setBounds(220, 299, 138, 25);
-        getContentPane().add(lblPassword);
+        panel.add(lblPassword);
 
         passwordField = new JPasswordField();
         passwordField.addKeyListener(new KeyAdapter() {
@@ -93,9 +108,9 @@ public class userLogin extends JFrame {
                 }
             }
         });
-        passwordField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        passwordField.setBounds(368, 299, 200, 35);
-        getContentPane().add(passwordField);
+        passwordField.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        passwordField.setBounds(340, 299, 150, 25);
+        panel.add(passwordField);
 
         loginButton = new JButton("Login");
         loginButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -104,54 +119,57 @@ public class userLogin extends JFrame {
                 loginButtonLogin();
             }
         });
-        loginButton.setBounds(441, 386, 111, 40);
-        getContentPane().add(loginButton);
+        loginButton.setBounds(441, 386, 111, 30);
+        panel.add(loginButton);
 
         signUpButton = new JButton("Sign Up");
         signUpButton.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		signUpButton();
-        	}
+            public void actionPerformed(ActionEvent e) {
+                signUpButton();
+            }
         });
         signUpButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
-        signUpButton.setBounds(247, 386, 111, 40);
-        getContentPane().add(signUpButton);
+        signUpButton.setBounds(247, 386, 111, 30);
+        panel.add(signUpButton);
 
         question = new JLabel("Don't have an account yet?");
         question.setForeground(new Color(0, 0, 0));
+        question.setForeground(Color.ORANGE);
         question.setHorizontalAlignment(SwingConstants.CENTER);
         question.setFont(new Font("Tahoma", Font.PLAIN, 14));
         question.setBounds(220, 355, 178, 25);
-        getContentPane().add(question);
-        
+        panel.add(question);
+
         saveButton = new JButton("Save");
         saveButton.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		saveButton();
-        	}
+            public void actionPerformed(ActionEvent e) {
+                saveButton();
+            }
         });
         saveButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
         saveButton.setBounds(341, 386, 111, 40);
         saveButton.setVisible(false);
-        getContentPane().add(saveButton);
-        
+        panel.add(saveButton);
+
         or = new JLabel("OR");
         or.setHorizontalAlignment(SwingConstants.CENTER);
-        or.setForeground(Color.BLACK);
+        or.setForeground(Color.ORANGE);
         or.setFont(new Font("Tahoma", Font.PLAIN, 14));
         or.setBounds(354, 386, 88, 40);
-        getContentPane().add(or);
-        
+        panel.add(or);
+
         newUser = new JLabel("New User Found!");
         newUser.setVisible(false);
         newUser.setHorizontalAlignment(SwingConstants.CENTER);
-        newUser.setForeground(Color.BLACK);
+        newUser.setForeground(Color.ORANGE);
         newUser.setFont(new Font("Tahoma", Font.PLAIN, 24));
         newUser.setBounds(284, 195, 200, 25);
-        getContentPane().add(newUser);
-        
-        
+        panel.add(newUser);
+
+        // Set the custom panel as the content pane
+        setContentPane(panel);
     }
+
 
     /**
      * loginButton the login process.
@@ -172,8 +190,8 @@ public class userLogin extends JFrame {
                         JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
                         // Transition to the next window (BasketballPerformanceTracker)
-                        BasketballPerformanceTrackerApp BasketballPerformanceTrackerWindow = new BasketballPerformanceTrackerApp (storedID);
-                        BasketballPerformanceTrackerWindow.setVisible(true);
+                       BasketballPerformanceTrackerApp BasketballPerformanceTrackerWindow = new BasketballPerformanceTrackerApp (storedID);
+                       BasketballPerformanceTrackerWindow.setVisible(true);
 
                         // Hide the current login window
                         this.setVisible(false);
