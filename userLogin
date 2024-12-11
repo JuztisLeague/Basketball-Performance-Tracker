@@ -62,23 +62,29 @@ public class userLogin extends JFrame {
     /**
      * Initialize the contents of the frame.
      */
-    private void initialize() {
+  private void initialize() {
         setTitle("User Login");
         setBounds(0, 0, 800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // Custom JPanel with a background image
-        JPanel panel = new JPanel(new GridBagLayout()) {
+        JPanel panel = new JPanel() {
             private static final long serialVersionUID = 1L;
-            private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the image to fill the panel
+                try {
+                    // Ensure the background image stretches to fit the panel
+                    Image backgroundImage = new ImageIcon(getClass().getResource("/pictures/basketball2.png")).getImage();
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                } catch (NullPointerException e) {
+                    System.err.println("Background image not found.");
+                }
             }
         };
+
         panel.setLayout(null);  // Using null layout to manually position components
 
         // Adding components to the custom panel
@@ -133,7 +139,6 @@ public class userLogin extends JFrame {
         panel.add(signUpButton);
 
         question = new JLabel("Don't have an account yet?");
-        question.setForeground(new Color(0, 0, 0));
         question.setForeground(Color.ORANGE);
         question.setHorizontalAlignment(SwingConstants.CENTER);
         question.setFont(new Font("Tahoma", Font.PLAIN, 14));
