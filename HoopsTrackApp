@@ -1,16 +1,24 @@
 package App;
+
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class App1 extends JFrame {
+public class HoopsTrackerApp extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-    // For storing user credentials
+	// For storing user credentials
     private HashMap<String, String> userAccounts = new HashMap<>();
 
     // Panels
@@ -29,222 +37,165 @@ public class App1 extends JFrame {
     private ArrayList<DailyProgress> trainingProgressList = new ArrayList<>();
     private JTextArea progressTextArea;
 
-	private Window signUpButton;
 
-	private Window backToLoginButton;
-
-    public App1() {
-        setTitle("Basketball Performance Tracker");
+    public HoopsTrackerApp(int storedID) {
+    	setTitle("HoopsTrack");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // Initialize panels
-        loginPanel = createLoginPanel();
-        signUpPanel = createSignUpPanel();
+        //loginPanel = createLoginPanel();
+        //signUpPanel = createSignUpPanel();
         mainAppPanel = createMainAppPanel();
 
-        setContentPane(loginPanel); // Show login panel first
+        setContentPane(mainAppPanel); // Show login panel first
         setLocationRelativeTo(null); // Center window
     }
 
-    // ---------------- LOGIN PANEL ------------------
-    private JPanel createLoginPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    
 
-        JLabel heading = new JLabel("Login");
-        heading.setFont(new Font("Arial", Font.BOLD, 24));
-
-        JTextField usernameField = new JTextField(15);
-        JPasswordField passwordField = new JPasswordField(15);
-
-        JButton loginButton = new JButton("Login");
-        JButton goToSignUpButton = new JButton("Sign Up");
-
-        panel.setLayout(null); // Disable layout manager
-
-        // New Username Label
-        JLabel usernameLabel = new JLabel("New Username:");
-        usernameLabel.setBounds(10, 10, 120, 25); // x, y, width, height
-        panel.add(usernameLabel);
-
-        // Username Field
-        usernameField.setBounds(140, 10, 200, 25);
-        panel.add(usernameField);
-
-        // New Password Label
-        JLabel passwordLabel = new JLabel("New Password:");
-        passwordLabel.setBounds(10, 50, 120, 25);
-        panel.add(passwordLabel);
-
-        // Password Field
-        passwordField.setBounds(140, 50, 200, 25);
-        panel.add(passwordField);
-
-        // Sign-Up Button
-        signUpButton.setBounds(10, 90, 150, 30);
-        panel.add(signUpButton);
-
-        // Back to Login Button
-        backToLoginButton.setBounds(180, 90, 150, 30);
-        panel.add(backToLoginButton);
+    public HoopsTrackerApp() {
+		// TODO Auto-generated constructor stub
+	}
 
 
 
-        loginButton.addActionListener(e -> {
-            String username = usernameField.getText();
-            String password = new String(passwordField.getPassword());
-
-            if (userAccounts.containsKey(username) && userAccounts.get(username).equals(password)) {
-                JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                setContentPane(mainAppPanel); // Show the main app
-                revalidate();
-            } else {
-                JOptionPane.showMessageDialog(this, "Invalid Credentials!", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        goToSignUpButton.addActionListener(e -> {
-            setContentPane(signUpPanel);
-            revalidate();
-        });
-
-        return panel;
-    }
-
-    // ---------------- SIGN-UP PANEL ------------------
-    /**
-     * @return
-     */
-    private JPanel createSignUpPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        JLabel heading = new JLabel("Sign Up");
-        heading.setFont(new Font("Arial", Font.BOLD, 24));
-
-        JTextField usernameField = new JTextField(15);
-        JPasswordField passwordField = new JPasswordField(15);
-
-        JButton signUpButton = new JButton("Sign Up");
-        JButton backToLoginButton = new JButton("Back to Login");
-
-        panel.setLayout(null); // Disable layout manager
-
-     // New Username Label
-     JLabel usernameLabel = new JLabel("New Username:");
-     usernameLabel.setBounds(10, 10, 120, 25); // x, y, width, height
-     panel.add(usernameLabel);
-
-     // Username Field
-     usernameField.setBounds(140, 10, 200, 25);
-     panel.add(usernameField);
-
-     // New Password Label
-     JLabel passwordLabel = new JLabel("New Password:");
-     passwordLabel.setBounds(10, 50, 120, 25);
-     panel.add(passwordLabel);
-
-     // Password Field
-     passwordField.setBounds(140, 50, 200, 25);
-     panel.add(passwordField);
-
-     // Sign-Up Button
-     signUpButton.setBounds(10, 90, 150, 30);
-     panel.add(signUpButton);
-
-     // Back to Login Button
-     backToLoginButton.setBounds(180, 90, 150, 30);
-     panel.add(backToLoginButton);
-
-
-
-        signUpButton.addActionListener(e -> {
-            String username = usernameField.getText();
-            String password = new String(passwordField.getPassword());
-
-            if (!username.isEmpty() && !password.isEmpty()) {
-                if (!userAccounts.containsKey(username)) {
-                    userAccounts.put(username, password);
-                    JOptionPane.showMessageDialog(this, "Account Created Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    setContentPane(loginPanel);
-                    revalidate();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Username already exists!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        backToLoginButton.addActionListener(e -> {
-            setContentPane(loginPanel);
-            revalidate();
-        });
-
-        return panel;
-    }
-
-    // ---------------- MAIN APP PANEL ------------------
+	// ---------------- MAIN APP PANEL ------------------
     private JPanel createMainAppPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+    	// JPanel with a black background color
+        JPanel panel = new JPanel();
+        panel.setBackground(Color.BLACK); // Set background color to black
 
-        // Set a preferred size for the main panel to make it bigger
-        panel.setPreferredSize(new Dimension(800, 600));  // Set your desired width and height
+        // Set a preferred size for the main panel
+        panel.setPreferredSize(new Dimension(800, 600));
 
-        JLabel welcomeLabel = new JLabel("Welcome to Basketball Performance Tracker!", JLabel.CENTER);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 22)); // Increase font size for better visibility
+        // Heading label
+        JLabel welcomeLabel = new JLabel("Welcome to HoopsTrack!", JLabel.CENTER);
+        welcomeLabel.setBounds(0, 0, 784, 26);
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        welcomeLabel.setForeground(Color.ORANGE); // Ensure text is visible on the black background
 
         // Main Tabs
         JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setBounds(0, 26, 784, 535);
         tabbedPane.addTab("User Info", createUserInfoPanel());
         tabbedPane.addTab("Skill Drills", createSkillDrillsPanel());
         tabbedPane.addTab("Results", createResultsPanel());
         tabbedPane.addTab("Progress", createProgressPanel());
 
-        // Optional: Set preferred size for the tabbed pane if you want it bigger
-        tabbedPane.setPreferredSize(new Dimension(780, 500)); // Adjust size here
+        // Optional: Set preferred size for the tabbed pane
+        tabbedPane.setPreferredSize(new Dimension(780, 500));
+        panel.setLayout(null);
 
-        panel.add(welcomeLabel, BorderLayout.NORTH);
-        panel.add(tabbedPane, BorderLayout.CENTER);
+        panel.add(welcomeLabel);
+        panel.add(tabbedPane);
 
         return panel;
     }
 
-    // ---------------- USER INFO PANEL ------------------
-    private JPanel createUserInfoPanel() {
-        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    private JLabel createUserInfoPanel() {
+        // Custom JLabel with an image as background
+        JLabel backgroundLabel = new JLabel() {
+            private ImageIcon backgroundImage;
 
-        panel.add(new JLabel("Age:"));
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                // Only scale the image once when the backgroundLabel is first initialized
+                if (backgroundImage == null) {
+                    ImageIcon icon = new ImageIcon(HoopsTrackerApp.class.getResource("/Images/mainBackground.jpg"));
+                    Image img = icon.getImage();
+                    backgroundImage = new ImageIcon(img.getScaledInstance(getWidth(), getHeight(), Image.SCALE_SMOOTH));
+                }
+
+                // Draw the cached background image
+                setIcon(backgroundImage);
+                super.paintComponent(g);
+            }
+        };
+
+        // Set layout to null for absolute positioning (this allows for manual component placement)
+        backgroundLabel.setLayout(null);
+
+        // Create a semi-transparent panel to hold the form components
+        JPanel transparentPanel = new JPanel(null);  // Use null layout for absolute positioning
+        transparentPanel.setBackground(new Color(0, 0, 0, 51));  // Black color with 20% opacity
+
+        // Set bounds for the transparent panel (position and size)
+        transparentPanel.setBounds(20, 20, 740, 460);  // Adjust as needed (x, y, width, height)
+
+        // Form components with orange labels and manual positioning
+        JLabel ageLabel = new JLabel("Age:");
+        ageLabel.setForeground(Color.ORANGE);  // Set font color to orange
+        ageLabel.setBounds(20, 20, 100, 25);  // Position the label
+        transparentPanel.add(ageLabel);
+
         ageField = new JTextField();
-        panel.add(ageField);
+        ageField.setBounds(130, 20, 150, 25);  // Position the text field
+        transparentPanel.add(ageField);
 
-        panel.add(new JLabel("Weight (kg):"));
+        JLabel weightLabel = new JLabel("Weight (kg):");
+        weightLabel.setForeground(Color.ORANGE);
+        weightLabel.setBounds(20, 60, 100, 25);  // Position the label
+        transparentPanel.add(weightLabel);
+
         weightField = new JTextField();
-        panel.add(weightField);
+        weightField.setBounds(130, 60, 150, 25);  // Position the text field
+        transparentPanel.add(weightField);
 
-        panel.add(new JLabel("Body Type:"));
+        JLabel bodyTypeLabel = new JLabel("Body Type:");
+        bodyTypeLabel.setForeground(Color.ORANGE);
+        bodyTypeLabel.setBounds(20, 100, 100, 25);  // Position the label
+        transparentPanel.add(bodyTypeLabel);
+
         bodyTypeComboBox = new JComboBox<>(new String[]{"- No type selected -", "Slim", "Average", "Heavy"});
         bodyTypeComboBox.setToolTipText("Select corresponding body type");
-        panel.add(bodyTypeComboBox);
+        bodyTypeComboBox.setBounds(130, 100, 150, 25);  // Position the combo box
+        bodyTypeComboBox.setFocusable(false); // Disable focus to avoid blue trace
+        transparentPanel.add(bodyTypeComboBox);
 
-        panel.add(new JLabel("Skill Level:"));
-        skillLevelComboBox = new JComboBox<>(new String[]{"- No level selected -" ,"1", "2", "3"});
+        JLabel skillLevelLabel = new JLabel("Skill Level:");
+        skillLevelLabel.setForeground(Color.ORANGE);
+        skillLevelLabel.setBounds(20, 140, 100, 25);  // Position the label
+        transparentPanel.add(skillLevelLabel);
+
+        skillLevelComboBox = new JComboBox<>(new String[]{"- No level selected -", "1", "2", "3"});
         skillLevelComboBox.setToolTipText("Select corresponding level");
-        panel.add(skillLevelComboBox);
+        skillLevelComboBox.setBounds(130, 140, 150, 25);  // Position the combo box
+        skillLevelComboBox.setFocusable(false); // Disable focus to avoid blue trace
+        transparentPanel.add(skillLevelComboBox);
 
-        panel.add(new JLabel("Training Days:"));
-        trainingDaysComboBox = new JComboBox<>(new String[]{"- No schedule selected -" ,"Monday, Wednesday & Friday", "Tuesday & Thursday", "Saturday & Sunday"});
+        JLabel trainingDaysLabel = new JLabel("Training Days:");
+        trainingDaysLabel.setForeground(Color.ORANGE);
+        trainingDaysLabel.setBounds(20, 180, 100, 25);  // Position the label
+        transparentPanel.add(trainingDaysLabel);
+
+        trainingDaysComboBox = new JComboBox<>(new String[]{"- No schedule selected -", "Monday, Wednesday & Friday", "Tuesday & Thursday", "Saturday & Sunday"});
         trainingDaysComboBox.setToolTipText("Select corresponding schedule");
-        panel.add(trainingDaysComboBox);
+        trainingDaysComboBox.setBounds(130, 180, 150, 25);  // Position the combo box
+        trainingDaysComboBox.setFocusable(false); // Disable focus to avoid blue trace
+        transparentPanel.add(trainingDaysComboBox);
 
         JButton saveButton = new JButton("Save Info");
         saveButton.addActionListener(e -> saveUserInfo());
-        panel.add(saveButton);
+        saveButton.setBounds(130, 220, 150, 30);  // Position the button
+        transparentPanel.add(saveButton);
 
-        return panel;
+        // Add the transparent form panel on top of the background label
+        backgroundLabel.add(transparentPanel);
+
+        return backgroundLabel;
     }
+
+
+
+
+
+
+
+
+
 
     // ---------------- SKILL DRILLS PANEL ------------------
     //private int shootingTimeElapsed = 0;
@@ -253,79 +204,100 @@ public class App1 extends JFrame {
     //private boolean dribblingPaused = false;
 
 
-    private JPanel createSkillDrillsPanel() {
-        JPanel panel = new JPanel(new GridLayout(8, 1, 10, 10));
+    // ---------------- SKILL DRILLS PANEL ------------------
+    //private int shootingTimeElapsed = 0;
+    //private int dribblingTimeElapsed = 0;
 
-        // Timer Input Fields
-        JPanel inputPanel = new JPanel(new FlowLayout());
+
+    private JPanel createSkillDrillsPanel() {
+        // Custom JPanel with a background image and absolute layout
+        JPanel panel = new JPanel(null) { 
+            private static final long serialVersionUID = 1L;
+            private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
+            }
+        };
+        panel.setOpaque(false); // Make sure the panel paints the background correctly
+
+        // Timer Input Fields (already positioned)
+        JPanel inputPanel = new JPanel(null);
+        inputPanel.setBounds(5, 18, 1, 1);
+        inputPanel.setOpaque(false);
         JLabel inputLabel = new JLabel("Set Timer (MM:SS): ");
+        inputLabel.setForeground(Color.ORANGE);
+        inputLabel.setBounds(10, 10, 150, 30);
+
         JTextField minutesField = new JTextField(2);
+        minutesField.setBounds(170, 10, 30, 30);
         JTextField secondsField = new JTextField(2);
+        secondsField.setBounds(210, 10, 30, 30);
         inputPanel.add(inputLabel);
         inputPanel.add(minutesField);
-        inputPanel.add(new JLabel(":"));
         inputPanel.add(secondsField);
 
         // Timer Labels with Bigger Font
         shootingTimerLabel = new JLabel("Shooting Timer: 00:00", JLabel.CENTER);
         shootingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        shootingTimerLabel.setForeground(Color.ORANGE);
+        shootingTimerLabel.setBounds(11, 5, 251, 28);
+
         dribblingTimerLabel = new JLabel("Dribbling Timer: 00:00", JLabel.CENTER);
         dribblingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        dribblingTimerLabel.setForeground(Color.ORANGE);
+        dribblingTimerLabel.setBounds(461, 5, 252, 28);
+
         exerciseMessageLabel = new JLabel("Select skill level to display exercise details", JLabel.CENTER);
         exerciseMessageLabel.setFont(new Font("Arial", Font.BOLD, 15));
-        
+        exerciseMessageLabel.setForeground(Color.ORANGE);
+        exerciseMessageLabel.setBounds(304, 40, 303, 18);
+
         // Buttons for Shooting Timer
         JButton startShootingButton = new JButton("Start");
         JButton pauseShootingButton = new JButton("Pause");
         JButton resetShootingButton = new JButton("Reset");
-
         // Buttons for Dribbling Timer
         JButton startDribblingButton = new JButton("Start");
         JButton pauseDribblingButton = new JButton("Pause");
+        pauseDribblingButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        	}
+        });
         JButton resetDribblingButton = new JButton("Reset");
 
-        // Button Sizes
-        Dimension buttonSize = new Dimension(80, 30);
-        startShootingButton.setPreferredSize(buttonSize);
-        pauseShootingButton.setPreferredSize(buttonSize);
-        resetShootingButton.setPreferredSize(buttonSize);
-        startDribblingButton.setPreferredSize(buttonSize);
-        pauseDribblingButton.setPreferredSize(buttonSize);
-        resetDribblingButton.setPreferredSize(buttonSize);
-
-        // Shooting Timer Logic
-        startShootingButton.addActionListener(e -> {
-            int minutes = Integer.parseInt(minutesField.getText());
-            int seconds = Integer.parseInt(secondsField.getText());
-            startTimer(minutes * 60 + seconds, shootingTimerLabel);
-        });
-        pauseShootingButton.addActionListener(e -> pauseTimer());
-        resetShootingButton.addActionListener(e -> resetTimer(shootingTimerLabel));
-
-        // Dribbling Timer Logic
-        startDribblingButton.addActionListener(e -> {
-            int minutes = Integer.parseInt(minutesField.getText());
-            int seconds = Integer.parseInt(secondsField.getText());
-            startTimer(minutes * 60 + seconds, dribblingTimerLabel);
-        });
-        pauseDribblingButton.addActionListener(e -> pauseTimer());
-        resetDribblingButton.addActionListener(e -> resetTimer(dribblingTimerLabel));
+        // Set bounds for the buttons
+        startShootingButton.setBounds(267, 7, 57, 23);
+        pauseShootingButton.setBounds(329, 7, 61, 23);
+        resetShootingButton.setBounds(395, 7, 61, 23);
+        
+        startDribblingButton.setBounds(718, 7, 57, 23);
+        pauseDribblingButton.setBounds(105, 133, 61, 23);
+        resetDribblingButton.setBounds(238, 38, 61, 23);
+        panel.setLayout(null);
 
         // Add Components to Panel
         panel.add(inputPanel);
         panel.add(shootingTimerLabel);
-        panel.add(createButtonPanel(startShootingButton, pauseShootingButton, resetShootingButton));
+        panel.add(startShootingButton);
+        panel.add(pauseShootingButton);
+        panel.add(resetShootingButton);
         panel.add(dribblingTimerLabel);
-        panel.add(createButtonPanel(startDribblingButton, pauseDribblingButton, resetDribblingButton));
+        panel.add(startDribblingButton);
+        panel.add(pauseDribblingButton);
+        panel.add(resetDribblingButton);
         panel.add(exerciseMessageLabel);
 
-        skillLevelComboBox.addActionListener(e -> updateExerciseMessage());
         return panel;
     }
+
 
     // Helper Method to Create Button Panel
     private JPanel createButtonPanel(JButton start, JButton pause, JButton reset) {
         JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.setOpaque(false); // Ensure buttons panel is transparent
         buttonPanel.add(start);
         buttonPanel.add(pause);
         buttonPanel.add(reset);
@@ -334,61 +306,104 @@ public class App1 extends JFrame {
 
     // ---------------- RESULTS PANEL ------------------
     private JPanel createResultsPanel() {
-        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+        // Custom JPanel with a background image and absolute layout
+        JPanel panel = new JPanel(null) { 
+            private static final long serialVersionUID = 1L;
+            private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
 
-        panel.add(new JLabel("Shots Made:"));
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
+            }
+        };
+        panel.setOpaque(false); // Make sure the panel paints the background correctly
+        panel.setLayout(null);
+
+        // Shots Made Label
+        JLabel shotsMadeLabel = new JLabel("Shots Made:");
+        shotsMadeLabel.setForeground(Color.ORANGE);
+        shotsMadeLabel.setBounds(234, 9, 60, 14);
+        panel.add(shotsMadeLabel);
         shotsMadeField = new JTextField();
+        shotsMadeField.setBounds(299, 6, 7, 20);
         panel.add(shotsMadeField);
 
-        panel.add(new JLabel("Dribbling Time (secs):"));
+        // Dribbling Time Label
+        JLabel dribblingTimeLabel = new JLabel("Dribbling Time (secs):");
+        dribblingTimeLabel.setForeground(Color.ORANGE);
+        dribblingTimeLabel.setBounds(311, 9, 102, 14);
+        panel.add(dribblingTimeLabel);
         dribblingTimeField = new JTextField();
+        dribblingTimeField.setBounds(418, 6, 7, 20);
         panel.add(dribblingTimeField);
 
+        // Calculate Button
         JButton calculateButton = new JButton("Calculate Results");
+        calculateButton.setBounds(430, 5, 115, 23);
         calculateButton.addActionListener(e -> calculateResults());
         panel.add(calculateButton);
 
         return panel;
     }
 
+
     // ---------------- PROGRESS PANEL ------------------
     private JPanel createProgressPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // Custom JPanel with a background image and absolute layout
+        JPanel panel = new JPanel(null) { 
+            private static final long serialVersionUID = 1L;
+            private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
 
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
+            }
+        };
+        panel.setOpaque(false); // Make sure the panel paints the background correctly
+        panel.setLayout(null);
+
+        // Transparent panel with size 20, 20, 740, 460
+        JPanel transparentPanel = new JPanel();
+        transparentPanel.setOpaque(false); // Make the panel transparent
+        transparentPanel.setBounds(20, 20, 740, 460); // Set size and position
+        transparentPanel.setLayout(null); // Use absolute layout for positioning components inside it
+
+        // Heading label
         JLabel heading = new JLabel("Training Progress");
         heading.setFont(new Font("Arial", Font.BOLD, 18));
         heading.setHorizontalAlignment(SwingConstants.CENTER);
+        heading.setForeground(Color.ORANGE);
+        heading.setBounds(41, 84, 155, 22); // Position the heading label
+        transparentPanel.add(heading);
 
         // Progress Text Area
         progressTextArea = new JTextArea(10, 30);
         progressTextArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(progressTextArea);
+        scrollPane.setBounds(218, 5, 246, 186); // Position the scroll pane
+        transparentPanel.add(scrollPane);
 
         // Button to calculate endurance
         JButton calculateEnduranceButton = new JButton("Calculate Endurance");
+        calculateEnduranceButton.setBounds(453, 142, 131, 23); // Position the button
         calculateEnduranceButton.addActionListener(e -> calculateEndurance());
+        transparentPanel.add(calculateEnduranceButton);
 
         // User info label
         userInfoLabel = new JLabel("User Info: Not Available", JLabel.CENTER);
+        userInfoLabel.setForeground(Color.ORANGE);
+        userInfoLabel.setBounds(605, 91, 115, 14); // Position the label
+        transparentPanel.add(userInfoLabel);
 
-        // Button to load progress
-        JButton loadProgressButton = new JButton("Load Training Progress");
-        loadProgressButton.addActionListener(e -> loadProgress());
-
-        // Panel layout
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-        bottomPanel.add(calculateEnduranceButton);
-        bottomPanel.add(userInfoLabel);
-        bottomPanel.add(loadProgressButton);
-
-        panel.add(heading, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(bottomPanel, BorderLayout.SOUTH);
+        // Add the transparent panel to the main panel
+        panel.add(transparentPanel);
 
         return panel;
     }
+
+
     
     private void loadProgress() {
         progressTextArea.setText(""); // Clear the progress text area before loading new data
@@ -416,10 +431,6 @@ public class App1 extends JFrame {
         savedSkillLevel = (String) skillLevelComboBox.getSelectedItem();
         savedTrainingDays = (String) trainingDaysComboBox.getSelectedItem();
 
-        JOptionPane.showMessageDialog(this, "User Info Saved!", "Info", JOptionPane.INFORMATION_MESSAGE);
-        userInfoLabel.setText("<html>Age: " + savedAge + "<br>Weight: " + savedWeight + "<br>Body Type: " + savedBodyType +
-                "<br>Skill Level: " + savedSkillLevel + "<br>Training Days: " + savedTrainingDays + "</html>");
-        
      // Retrieve field values
         String age = ageField.getText().trim();
         String weight = weightField.getText().trim();
@@ -571,7 +582,7 @@ public class App1 extends JFrame {
     // ---------------- MAIN ------------------
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            App1 app = new App1();
+            HoopsTrackerApp app = new HoopsTrackerApp();
             app.setVisible(true);
         });
     }
