@@ -77,7 +77,7 @@ public class userLogin extends JFrame {
                 super.paintComponent(g);
                 try {
                     // Ensure the background image stretches to fit the panel
-                    Image backgroundImage = new ImageIcon(getClass().getResource("/pictures/basketball2.png")).getImage();
+                    Image backgroundImage = new ImageIcon(userLogin.class.getResource("/pictures/basketball2.jpg")).getImage();
                     g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
                 } catch (NullPointerException e) {
                     System.err.println("Background image not found.");
