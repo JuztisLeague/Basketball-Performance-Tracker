@@ -1,0 +1,258 @@
+package App;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import javax.swing.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+public class userLogin extends JFrame {
+
+    private static final long serialVersionUID = 1L;
+
+    // UI Components
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JButton loginButton;
+
+    // Database connection manager
+    private Database database;
+    private Connection con;
+    private JButton signUpButton;
+    private JLabel question;
+    private JLabel or;
+
+	private String username;
+
+	private String password;
+	private JButton saveButton;
+	private JLabel newUser;
+
+    /**
+     * Launch the application.
+     */
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                userLogin window = new userLogin();
+                window.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * Constructor to create the application.
+     */
+    public userLogin() {
+        // Initialize the database connection
+        database = new Database();
+        con = database.getConnection();
+
+        // Initialize UI
+        initialize();
+    }
+
+    /**
+     * Initialize the contents of the frame.
+     */
+    private void initialize() {
+        setTitle("User Login");
+        setBounds(0, 0, 800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().setLayout(null);
+        setLocationRelativeTo(null);
+
+        JLabel lblUsername = new JLabel("Username");
+        lblUsername.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        lblUsername.setBounds(220, 249, 138, 25);
+        getContentPane().add(lblUsername);
+
+        usernameField = new JTextField();
+        usernameField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        usernameField.setBounds(368, 239, 200, 35);
+        getContentPane().add(usernameField);
+
+        JLabel lblPassword = new JLabel("Password");
+        lblPassword.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        lblPassword.setBounds(220, 299, 138, 25);
+        getContentPane().add(lblPassword);
+
+        passwordField = new JPasswordField();
+        passwordField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    loginButtonLogin();
+                }
+            }
+        });
+        passwordField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        passwordField.setBounds(368, 299, 200, 35);
+        getContentPane().add(passwordField);
+
+        loginButton = new JButton("Login");
+        loginButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        loginButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loginButtonLogin();
+            }
+        });
+        loginButton.setBounds(441, 386, 111, 40);
+        getContentPane().add(loginButton);
+
+        signUpButton = new JButton("Sign Up");
+        signUpButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		signUpButton();
+        	}
+        });
+        signUpButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        signUpButton.setBounds(247, 386, 111, 40);
+        getContentPane().add(signUpButton);
+
+        question = new JLabel("Don't have an account yet?");
+        question.setForeground(new Color(0, 0, 0));
+        question.setHorizontalAlignment(SwingConstants.CENTER);
+        question.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        question.setBounds(220, 355, 178, 25);
+        getContentPane().add(question);
+        
+        saveButton = new JButton("Save");
+        saveButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		saveButton();
+        	}
+        });
+        saveButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        saveButton.setBounds(341, 386, 111, 40);
+        saveButton.setVisible(false);
+        getContentPane().add(saveButton);
+        
+        or = new JLabel("OR");
+        or.setHorizontalAlignment(SwingConstants.CENTER);
+        or.setForeground(Color.BLACK);
+        or.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        or.setBounds(354, 386, 88, 40);
+        getContentPane().add(or);
+        
+        newUser = new JLabel("New User Found!");
+        newUser.setVisible(false);
+        newUser.setHorizontalAlignment(SwingConstants.CENTER);
+        newUser.setForeground(Color.BLACK);
+        newUser.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        newUser.setBounds(284, 195, 200, 25);
+        getContentPane().add(newUser);
+        
+        
+    }
+
+    /**
+     * loginButton the login process.
+     */
+    private void loginButtonLogin() {
+        username = usernameField.getText();
+        password = new String(passwordField.getPassword());
+
+        try (PreparedStatement pst = con.prepareStatement("SELECT * FROM userinfo WHERE name = ?")) {
+            pst.setString(1, username);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    String storedPassword = rs.getString("password");
+                    int storedID = Integer.parseInt(rs.getString("id"));
+
+                    if (password.equals(storedPassword)) {
+                        JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                        // Transition to the next window (BasketballPerformanceTracker)
+                        BasketballPerformanceTrackerApp BasketballPerformanceTrackerWindow = new BasketballPerformanceTrackerApp (storedID);
+                        BasketballPerformanceTrackerWindow.setVisible(true);
+
+                        // Hide the current login window
+                        this.setVisible(false);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Incorrect password. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Username not found. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error connecting to database: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void signUpButton() {
+    	or.setVisible(false);
+    	question.setVisible(false);
+    	signUpButton.setVisible(false);
+    	loginButton.setVisible(false);
+    	newUser.setVisible(true);
+    	saveButton.setVisible(true);
+    }
+    
+    
+    private void saveButton() {
+    	
+    	
+    	
+        String username = usernameField.getText();
+        String password = new String(passwordField.getPassword());
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Username and password cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Check if the username already exists in the database
+        try (PreparedStatement pst = con.prepareStatement("SELECT * FROM userinfo WHERE name = ?")) {
+            pst.setString(1, username);
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                // Username already exists
+                JOptionPane.showMessageDialog(this, "Username already exists. Please choose another username.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            } else {
+                // Insert the new user into the database with only username and password
+                try (PreparedStatement insertPst = con.prepareStatement("INSERT INTO userinfo (name, password) VALUES (?, ?)")) {
+                    insertPst.setString(1, username);
+                    insertPst.setString(2, password);
+                    insertPst.executeUpdate();
+
+                    // Clear fields
+                    usernameField.setText("");
+                    passwordField.setText("");
+                    usernameField.requestFocus();
+
+                    // Show confirmation message
+                    JOptionPane.showMessageDialog(this, "User Info Saved! You can complete your profile later.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                    
+                    or.setVisible(true);
+                	question.setVisible(true);
+                	signUpButton.setVisible(true);
+                	loginButton.setVisible(true);
+                	newUser.setVisible(false);
+                	saveButton.setVisible(false);
+                	
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Failed to save user info: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to check username: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+}
