@@ -36,6 +36,7 @@ public class userLogin extends JFrame {
 	private static int storedID;
 	private static String storedName;
 	private static int storedLevel;
+	private JButton backButton;
 
     /**
      * Launch the application.
@@ -90,6 +91,29 @@ public class userLogin extends JFrame {
         };
 
         panel.setLayout(null);  // Using null layout to manually position components
+        
+                saveButton = new JButton("Save");
+                saveButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        saveButton();
+                    }
+                });
+                saveButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
+                saveButton.setBounds(441, 381, 111, 40);
+                saveButton.setVisible(false);
+                
+                backButton = new JButton("Back");
+                backButton.setVisible(false);
+                backButton.addActionListener(new ActionListener() {
+                	@Override
+                	public void actionPerformed(ActionEvent e) {
+                		backButton();
+                	}
+                });
+                backButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
+                backButton.setBounds(247, 381, 111, 40);
+                panel.add(backButton);
+                panel.add(saveButton);
 
         // Adding components to the custom panel
         JLabel lblUsername = new JLabel("Username:");
@@ -129,7 +153,7 @@ public class userLogin extends JFrame {
                 loginButtonLogin();
             }
         });
-        loginButton.setBounds(441, 386, 111, 30);
+        loginButton.setBounds(441, 381, 111, 40);
         panel.add(loginButton);
 
         signUpButton = new JButton("Sign Up");
@@ -139,7 +163,7 @@ public class userLogin extends JFrame {
             }
         });
         signUpButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
-        signUpButton.setBounds(247, 386, 111, 30);
+        signUpButton.setBounds(247, 381, 111, 40);
         panel.add(signUpButton);
 
         question = new JLabel("Don't have an account yet?");
@@ -148,17 +172,6 @@ public class userLogin extends JFrame {
         question.setFont(new Font("Tahoma", Font.PLAIN, 14));
         question.setBounds(220, 355, 178, 25);
         panel.add(question);
-
-        saveButton = new JButton("Save");
-        saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveButton();
-            }
-        });
-        saveButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
-        saveButton.setBounds(341, 386, 111, 40);
-        saveButton.setVisible(false);
-        panel.add(saveButton);
 
         or = new JLabel("OR");
         or.setHorizontalAlignment(SwingConstants.CENTER);
@@ -241,7 +254,19 @@ public class userLogin extends JFrame {
     	loginButton.setVisible(false);
     	newUser.setVisible(true);
     	saveButton.setVisible(true);
+    	backButton.setVisible(true);
     }
+    private void backButton() {
+    	or.setVisible(true);
+    	question.setVisible(true);
+    	signUpButton.setVisible(true);
+    	loginButton.setVisible(true);
+    	newUser.setVisible(false);
+    	saveButton.setVisible(false);
+    	backButton.setVisible(false);
+    	
+    }
+    
     
     
     private void saveButton() {
@@ -286,6 +311,7 @@ public class userLogin extends JFrame {
                 	loginButton.setVisible(true);
                 	newUser.setVisible(false);
                 	saveButton.setVisible(false);
+                	backButton.setVisible(false);
                 	
                 } catch (SQLException e) {
                     e.printStackTrace();
