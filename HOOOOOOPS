@@ -24,6 +24,10 @@ import java.util.List;
 import java.util.Scanner;
 
 public class HoopsTrackerApp extends JFrame {
+	
+	private static JLabel percentageShotsLabel;
+	private static JLabel percentageDribbleLabel;
+	private static JLabel runningLabel;
 	/**
 	 * 
 	 */
@@ -695,25 +699,25 @@ public class HoopsTrackerApp extends JFrame {
         // Add the transparent panel to the main panel
         panel.add(transparentPanel);
         
-        JLabel daysLabel = new JLabel("New label");
+        daysLabel = new JLabel("New label");
         daysLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
         daysLabel.setBounds(69, 273, 118, 82);
         transparentPanel.add(daysLabel);
         
-        JLabel percentageShotsLabel = new JLabel("New label");
+        percentageShotsLabel = new JLabel("New label");
         percentageShotsLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
         percentageShotsLabel.setBounds(274, 273, 118, 82);
         transparentPanel.add(percentageShotsLabel);
         
-        JLabel percentageDribbleLabel = new JLabel("New label");
+        percentageDribbleLabel = new JLabel("New label");
         percentageDribbleLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
         percentageDribbleLabel.setBounds(433, 273, 118, 82);
         transparentPanel.add(percentageDribbleLabel);
         
-        JLabel percentageRunningLabel = new JLabel("New label");
-        percentageRunningLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
-        percentageRunningLabel.setBounds(594, 273, 118, 82);
-        transparentPanel.add(percentageRunningLabel);
+        runningLabel = new JLabel("New label");
+        runningLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        runningLabel.setBounds(594, 273, 118, 82);
+        transparentPanel.add(runningLabel);
 
         // Call the method to load progress from the database
         loadProgressFromDatabase(trainingData);
@@ -722,30 +726,22 @@ public class HoopsTrackerApp extends JFrame {
     }
 
     // Method to load data from the database and update the progressTable
-   private void loadProgressFromDatabase(List<TrainingSession> trainingData) {
-    Database db = new Database();
-    con = db.getConnection(); // Get the active connection
+    private void loadProgressFromDatabase(List<TrainingSession> trainingData) {
+        Database db = new Database();
+        con = db.getConnection(); // Get the active connection
+        
+        int skillLevel = userLogin.storedUserLevel();
 
-    int skillLevel = userLogin.storedUserLevel();
+        DefaultTableModel model = (DefaultTableModel) progressTable.getModel();
+        model.setRowCount(0); // Clear the current rows in the table
 
-    // Check if skillLevel is valid
-    if (skillLevel <= 0 || skillLevel > trainingData.size()) {
-        JOptionPane.showMessageDialog(null, "Error: Invalid skill level or no data available for the user.");
-        return; // Exit the method
-    }
-
-    DefaultTableModel model = (DefaultTableModel) progressTable.getModel();
-    model.setRowCount(0); // Clear the current rows in the table
-
-    // SQL query to fetch data from the 'progress' table based on user_name and user_level
-    String query = "SELECT x, y1, y2, y3 FROM progress WHERE name LIKE ? AND level = ?";
-
-    try {
-        TrainingSession session = trainingData.get(skillLevel - 1); // Safe access
-        System.out.println("Skill Level " + skillLevel + " - Total Attempts: " + session.totalAttempts +
-                "  Dribbling Max: " + session.maxDribbles);
+        // SQL query to fetch data from the 'progress' table based on user_name and user_level
+        String query = "SELECT x, y1, y2, y3 FROM progress WHERE name LIKE ? AND level = ?";
+        
+        TrainingSession session = trainingData.get(skillLevel - 1);
+        System.out.println("Skill Level " + skillLevel + " - Total Attempts: " + session.totalAttempts + "  Dribbling Max: " + session.maxDribbles);
         System.out.print("Enter the number of data points to add: ");
-
+        
         try (PreparedStatement pst = con.prepareStatement(query)) {
             // Get stored user information
             String userName = userLogin.storedUserName(); // Assuming storedUserName() returns the user's name
@@ -767,35 +763,28 @@ public class HoopsTrackerApp extends JFrame {
                 float y1 = rs.getFloat("y1");
                 float y2 = rs.getFloat("y2");
                 int y3 = rs.getInt("y3");
-
-                ShootingData newData = new ShootingData(skillLevel, y1, y2, y3);
+                
+                ShootingData newData = new ShootingData(skillLevel,y1,y2,y3);
                 session.data.add(newData);
-
+                	
                 // Print the values for debugging
                 System.out.printf("Retrieved - x: %d, y1: %.2f, y2: %.2f, y3: %d%n", x, y1, y2, y3);
 
                 Object[] row = { x, y1, y2, y3 };
                 model.addRow(row); // Add the row to the table model
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error loading data from database: " + e.getMessage());
+        } finally {
+            db.closeConnection(); // Close the connection when done
         }
-    } catch (IndexOutOfBoundsException e) {
-        JOptionPane.showMessageDialog(null, "Error: Invalid skill level index. Please verify user data.");
-        e.printStackTrace();
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error loading data from database: " + e.getMessage());
-    } finally {
-        db.closeConnection(); // Close the connection when done
     }
-}
-
     
     
     public static void performExtrapolation(List<TrainingSession> trainingData) {
-        System.out.print("Select skill level for extrapolation (1-3): ");
-        Scanner scanner = new Scanner(System.in);
-        int skillLevel = scanner.nextInt();
-
+        int skillLevel = userLogin.storedUserLevel();
+        
         if (skillLevel < 1 || skillLevel > 3) {
             System.out.println("Invalid skill level. Must be between 1 and 3.");
             return;
@@ -841,10 +830,18 @@ public class HoopsTrackerApp extends JFrame {
         System.out.printf("  Predicted Shooting Percentage: %.1f%%%n", predictedShotsPercentage);
         System.out.printf("  Predicted Dribbling Percentage: %.1f%%%n", predictedDribblePercentage);
         System.out.printf("  Predicted Running Time: %.1f seconds%n", predictedRunningTime);
+        
+        
+        daysLabel.setText(String.valueOf(nextDay));
+        percentageShotsLabel.setText(String.valueOf(predictedShotsPercentage));
+        percentageDribbleLabel.setText(String.valueOf(predictedDribblePercentage));
+        runningLabel.setText(String.valueOf(predictedRunningTime));;
+        
     }
     
     public static double dividedDifference(double[] x, double[] y, double value) {
         int n = x.length;
+        
         double[][] diffTable = new double[n][n];
 
         // Initialize the first column with y values
@@ -980,8 +977,10 @@ public class HoopsTrackerApp extends JFrame {
     private Timer stopwatchTimer;
     private int elapsedTime = 0;
 
-	private JLabel stopwatchLabel;
-	private JLabel picture;
+	private static JLabel stopwatchLabel;
+	private static JLabel picture;
+	private static JLabel daysLabel;
+	
 
     
 	// Method to start the stopwatch
@@ -1130,6 +1129,8 @@ public class HoopsTrackerApp extends JFrame {
     	List<TrainingSession> trainingData = new ArrayList<>();
         initializeSkillLevels(trainingData);
         
+        
+        
         SwingUtilities.invokeLater(() -> {
             HoopsTrackerApp app = new HoopsTrackerApp();
             app.setVisible(true);
@@ -1141,4 +1142,6 @@ public class HoopsTrackerApp extends JFrame {
         trainingData.add(new TrainingSession(2, 25, 40)); // Skill 2
         trainingData.add(new TrainingSession(3, 50, 50)); // Skill 3
     }
+    
+    
 }
