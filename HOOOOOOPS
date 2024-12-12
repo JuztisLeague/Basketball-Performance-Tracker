@@ -722,22 +722,30 @@ public class HoopsTrackerApp extends JFrame {
     }
 
     // Method to load data from the database and update the progressTable
-    private void loadProgressFromDatabase( List<TrainingSession> trainingData) {
-        Database db = new Database();
-        con = db.getConnection(); // Get the active connection
-        
-        int skillLevel = userLogin.storedUserLevel();
+   private void loadProgressFromDatabase(List<TrainingSession> trainingData) {
+    Database db = new Database();
+    con = db.getConnection(); // Get the active connection
 
-        DefaultTableModel model = (DefaultTableModel) progressTable.getModel();
-        model.setRowCount(0); // Clear the current rows in the table
+    int skillLevel = userLogin.storedUserLevel();
 
-        // SQL query to fetch data from the 'progress' table based on user_name and user_level
-        String query = "SELECT x, y1, y2, y3 FROM progress WHERE name LIKE ? AND level = ?";
-        
-        TrainingSession session = trainingData.get(skillLevel - 1);
-        System.out.println("Skill Level " + skillLevel + " - Total Attempts: " + session.totalAttempts + "  Dribbling Max: " + session.maxDribbles);
+    // Check if skillLevel is valid
+    if (skillLevel <= 0 || skillLevel > trainingData.size()) {
+        JOptionPane.showMessageDialog(null, "Error: Invalid skill level or no data available for the user.");
+        return; // Exit the method
+    }
+
+    DefaultTableModel model = (DefaultTableModel) progressTable.getModel();
+    model.setRowCount(0); // Clear the current rows in the table
+
+    // SQL query to fetch data from the 'progress' table based on user_name and user_level
+    String query = "SELECT x, y1, y2, y3 FROM progress WHERE name LIKE ? AND level = ?";
+
+    try {
+        TrainingSession session = trainingData.get(skillLevel - 1); // Safe access
+        System.out.println("Skill Level " + skillLevel + " - Total Attempts: " + session.totalAttempts +
+                "  Dribbling Max: " + session.maxDribbles);
         System.out.print("Enter the number of data points to add: ");
-        
+
         try (PreparedStatement pst = con.prepareStatement(query)) {
             // Get stored user information
             String userName = userLogin.storedUserName(); // Assuming storedUserName() returns the user's name
@@ -759,23 +767,28 @@ public class HoopsTrackerApp extends JFrame {
                 float y1 = rs.getFloat("y1");
                 float y2 = rs.getFloat("y2");
                 int y3 = rs.getInt("y3");
-                
-                ShootingData newData = new ShootingData(skillLevel,y1,y2,y3);
+
+                ShootingData newData = new ShootingData(skillLevel, y1, y2, y3);
                 session.data.add(newData);
-                	
+
                 // Print the values for debugging
                 System.out.printf("Retrieved - x: %d, y1: %.2f, y2: %.2f, y3: %d%n", x, y1, y2, y3);
 
                 Object[] row = { x, y1, y2, y3 };
                 model.addRow(row); // Add the row to the table model
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error loading data from database: " + e.getMessage());
-        } finally {
-            db.closeConnection(); // Close the connection when done
         }
+    } catch (IndexOutOfBoundsException e) {
+        JOptionPane.showMessageDialog(null, "Error: Invalid skill level index. Please verify user data.");
+        e.printStackTrace();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error loading data from database: " + e.getMessage());
+    } finally {
+        db.closeConnection(); // Close the connection when done
     }
+}
+
     
     
     public static void performExtrapolation(List<TrainingSession> trainingData) {
