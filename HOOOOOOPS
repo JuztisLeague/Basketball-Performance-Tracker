@@ -645,199 +645,197 @@ public class HoopsTrackerApp extends JFrame {
 
 
     // ---------------- PROGRESS PANEL ------------------
-    private JPanel createProgressPanel() {
-        // Custom JPanel with a background image and absolute layout
-    	
-    	List<TrainingSession> trainingData = new ArrayList<>();
-        initializeSkillLevels(trainingData);
-        
-        JPanel panel = new JPanel(null) { 
-            private static final long serialVersionUID = 1L;
-            private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
+   private JPanel createProgressPanel() {
+    // Custom JPanel with a background image and absolute layout
+    List<TrainingSession> trainingData = new ArrayList<>();
+    initializeSkillLevels(trainingData);
 
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
-            }
-        };
-        panel.setOpaque(false); // Make sure the panel paints the background correctly
-        panel.setLayout(null);
+    JPanel panel = new JPanel(null) { 
+        private static final long serialVersionUID = 1L;
+        private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
 
-        // Transparent panel with size 20, 20, 740, 460
-        JPanel transparentPanel = new JPanel();
-        transparentPanel.setOpaque(false); // Make the panel transparent
-        transparentPanel.setBounds(10, 11, 753, 487); // Set size and position
-        transparentPanel.setLayout(null); // Use absolute layout for positioning components inside it
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
+        }
+    };
+    panel.setOpaque(false); // Make sure the panel paints the background correctly
+    panel.setLayout(null);
 
-        // Heading label
-        JLabel heading = new JLabel("Training Progress");
-        heading.setFont(new Font("Arial", Font.BOLD, 18));
-        heading.setHorizontalAlignment(SwingConstants.CENTER);
-        heading.setForeground(Color.ORANGE);
-        heading.setBounds(32, 21, 155, 22); // Position the heading label
-        transparentPanel.add(heading);
+    // Transparent panel with size 20, 20, 740, 460
+    JPanel transparentPanel = new JPanel();
+    transparentPanel.setOpaque(false); // Make the panel transparent
+    transparentPanel.setBounds(10, 11, 753, 487); // Set size and position
+    transparentPanel.setLayout(null); // Use absolute layout for positioning components inside it
 
-        // Progress Table with Scroll Pane
-        String[] columnNames = {"x", "y1", "y2", "y3"}; // Column names for the table
-        Object[][] data = {}; // Initialize an empty 2D array for table data (populate this dynamically later)
+    // Heading label
+    JLabel heading = new JLabel("Training Progress");
+    heading.setFont(new Font("Arial", Font.BOLD, 18));
+    heading.setHorizontalAlignment(SwingConstants.CENTER);
+    heading.setForeground(Color.ORANGE);
+    heading.setBounds(32, 21, 155, 22); // Position the heading label
+    transparentPanel.add(heading);
 
-        // Create a DefaultTableModel and set it as the model for the JTable
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-        progressTable = new JTable(model); // Set the table model here
+    // Progress Table with Scroll Pane
+    String[] columnNames = {"x", "y1", "y2", "y3"}; // Column names for the table
+    Object[][] data = {}; // Initialize an empty 2D array for table data (populate this dynamically later)
 
-        JScrollPane scrollPane = new JScrollPane(progressTable); // Wrap the table in a scroll pane
-        scrollPane.setBounds(32, 50, 680, 110); // Position the scroll pane in the panel
-        transparentPanel.add(scrollPane);
+    // Create a DefaultTableModel and set it as the model for the JTable
+    DefaultTableModel model = new DefaultTableModel(data, columnNames);
+    progressTable = new JTable(model); // Set the table model here
 
-        // User info label
-        userInfoLabel = new JLabel("User Info: Not Available", JLabel.CENTER);
-        userInfoLabel.setForeground(Color.ORANGE);
-        userInfoLabel.setBounds(605, 91, 115, 14); // Position the label
-        transparentPanel.add(userInfoLabel);
+    JScrollPane scrollPane = new JScrollPane(progressTable); // Wrap the table in a scroll pane
+    scrollPane.setBounds(32, 50, 680, 110); // Position the scroll pane in the panel
+    transparentPanel.add(scrollPane);
 
-        // Add the transparent panel to the main panel
-        panel.add(transparentPanel);
-        
-        daysLabel = new JLabel("New label");
-        daysLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
-        daysLabel.setBounds(69, 273, 118, 82);
-        transparentPanel.add(daysLabel);
-        
-        percentageShotsLabel = new JLabel("New label");
-        percentageShotsLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
-        percentageShotsLabel.setBounds(274, 273, 118, 82);
-        transparentPanel.add(percentageShotsLabel);
-        
-        percentageDribbleLabel = new JLabel("New label");
-        percentageDribbleLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
-        percentageDribbleLabel.setBounds(433, 273, 118, 82);
-        transparentPanel.add(percentageDribbleLabel);
-        
-        runningLabel = new JLabel("New label");
-        runningLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
-        runningLabel.setBounds(594, 273, 118, 82);
-        transparentPanel.add(runningLabel);
+    // User info label
+    userInfoLabel = new JLabel("User Info: Not Available", JLabel.CENTER);
+    userInfoLabel.setForeground(Color.ORANGE);
+    userInfoLabel.setBounds(605, 91, 115, 14); // Position the label
+    transparentPanel.add(userInfoLabel);
 
-        // Call the method to load progress from the database
-        loadProgressFromDatabase(trainingData);
+    // Add the transparent panel to the main panel
+    panel.add(transparentPanel);
+    
+    // Initialize dynamic labels for extrapolation results
+    daysLabel = new JLabel("0");
+    daysLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
+    daysLabel.setBounds(69, 273, 118, 82);
+    transparentPanel.add(daysLabel);
+    
+    percentageShotsLabel = new JLabel("0");
+    percentageShotsLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
+    percentageShotsLabel.setBounds(274, 273, 118, 82);
+    transparentPanel.add(percentageShotsLabel);
+    
+    percentageDribbleLabel = new JLabel("0");
+    percentageDribbleLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
+    percentageDribbleLabel.setBounds(433, 273, 118, 82);
+    transparentPanel.add(percentageDribbleLabel);
+    
+    runningLabel = new JLabel("0");
+    runningLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
+    runningLabel.setBounds(594, 273, 118, 82);
+    transparentPanel.add(runningLabel);
 
-        return panel;
+    // Call the method to load progress from the database
+    loadProgressFromDatabase(trainingData);
+
+    return panel;
+}
+
+// Method to load data from the database and update the progressTable
+private void loadProgressFromDatabase(List<TrainingSession> trainingData) {
+    Database db = new Database();
+    con = db.getConnection(); // Get the active connection
+    
+    if (con == null) {
+        JOptionPane.showMessageDialog(null, "Database connection is null");
+        return;
     }
 
-    // Method to load data from the database and update the progressTable
-    private void loadProgressFromDatabase(List<TrainingSession> trainingData) {
-        Database db = new Database();
-        con = db.getConnection(); // Get the active connection
-        
-        int skillLevel = userLogin.storedUserLevel();
+    int skillLevel = userLogin.storedUserLevel();
+    DefaultTableModel model = (DefaultTableModel) progressTable.getModel();
+    model.setRowCount(0); // Clear the current rows in the table
 
-        DefaultTableModel model = (DefaultTableModel) progressTable.getModel();
-        model.setRowCount(0); // Clear the current rows in the table
+    // SQL query to fetch data from the 'progress' table based on user_name and user_level
+    String query = "SELECT x, y1, y2, y3 FROM progress WHERE name LIKE ? AND level = ?";
+    
+    TrainingSession session = trainingData.get(skillLevel - 1);
+    System.out.println("Skill Level " + skillLevel + " - Total Attempts: " + session.totalAttempts + "  Dribbling Max: " + session.maxDribbles);
 
-        // SQL query to fetch data from the 'progress' table based on user_name and user_level
-        String query = "SELECT x, y1, y2, y3 FROM progress WHERE name LIKE ? AND level = ?";
-        
-        TrainingSession session = trainingData.get(skillLevel - 1);
-        System.out.println("Skill Level " + skillLevel + " - Total Attempts: " + session.totalAttempts + "  Dribbling Max: " + session.maxDribbles);
-        System.out.print("Enter the number of data points to add: ");
-        
-        try (PreparedStatement pst = con.prepareStatement(query)) {
-            // Get stored user information
-            String userName = userLogin.storedUserName(); // Assuming storedUserName() returns the user's name
-            int userLevel = userLogin.storedUserLevel(); // Assuming storedUserLevel() returns the user's level
+    try (PreparedStatement pst = con.prepareStatement(query)) {
+        String userName = userLogin.storedUserName(); // Assuming storedUserName() returns the user's name
+        int userLevel = userLogin.storedUserLevel(); // Assuming storedUserLevel() returns the user's level
 
-            // Print the user info for debugging
-            System.out.println("User Name: " + userName);
-            System.out.println("User Level: " + userLevel);
+        // Print the user info for debugging
+        System.out.println("User Name: " + userName);
+        System.out.println("User Level: " + userLevel);
 
-            // Bind parameters
-            pst.setString(1, "%" + userName + "%"); // Use wildcard for LIKE
-            pst.setInt(2, userLevel);
+        pst.setString(1, "%" + userName + "%"); // Use wildcard for LIKE
+        pst.setInt(2, userLevel);
 
-            ResultSet rs = pst.executeQuery();
+        ResultSet rs = pst.executeQuery();
 
-            // Loop through the result set and populate the table model
-            while (rs.next()) {
-                int x = rs.getInt("x");
-                float y1 = rs.getFloat("y1");
-                float y2 = rs.getFloat("y2");
-                int y3 = rs.getInt("y3");
-                
-                ShootingData newData = new ShootingData(skillLevel,y1,y2,y3);
-                session.data.add(newData);
-                	
-                // Print the values for debugging
-                System.out.printf("Retrieved - x: %d, y1: %.2f, y2: %.2f, y3: %d%n", x, y1, y2, y3);
+        // Loop through the result set and populate the table model
+        while (rs.next()) {
+            int x = rs.getInt("x");
+            float y1 = rs.getFloat("y1");
+            float y2 = rs.getFloat("y2");
+            int y3 = rs.getInt("y3");
+            
+            ShootingData newData = new ShootingData(skillLevel, y1, y2, y3);
+            session.data.add(newData);
 
-                Object[] row = { x, y1, y2, y3 };
-                model.addRow(row); // Add the row to the table model
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error loading data from database: " + e.getMessage());
-        } finally {
-            db.closeConnection(); // Close the connection when done
+            Object[] row = { x, y1, y2, y3 };
+            model.addRow(row); // Add the row to the table model
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error loading data from database: " + e.getMessage());
+    } finally {
+        db.closeConnection(); // Close the connection when done
     }
-    
-    
-    public static void performExtrapolation(List<TrainingSession> trainingData) {
-        int skillLevel = userLogin.storedUserLevel();
-        
-        if (skillLevel < 1 || skillLevel > 3) {
-            System.out.println("Invalid skill level. Must be between 1 and 3.");
-            return;
-        }
+}
 
-        TrainingSession session = trainingData.get(skillLevel - 1);
-        if (session.data.size() < 5) { // Ensure we have enough data points (5)
-            System.out.println("Not enough data points for extrapolation. At least 5 data points are required.");
-            return;
-        }
+public static void performExtrapolation(List<TrainingSession> trainingData) {
+    int skillLevel = userLogin.storedUserLevel();
 
-        int dataSize = session.data.size();
-        double[] days = new double[5];
-        double[] percentages = new double[5];
-        double[] dribblePercentages = new double[5];
-        double[] runningTimes = new double[5];
+    if (skillLevel < 1 || skillLevel > 3) {
+        System.out.println("Invalid skill level. Must be between 1 and 3.");
+        return;
+    }
 
-        // Use the last 5 data points for extrapolation
-        for (int i = 0; i < 5; i++) {
-            days[i] = dataSize - 5 + i + 1; // Day number
-            ShootingData data = session.data.get(dataSize - 5 + i);
-            percentages[i] = data.percentage;
-            dribblePercentages[i] = data.dribblePercentage;
-            runningTimes[i] = data.runningTime;
-        }
+    TrainingSession session = trainingData.get(skillLevel - 1);
+    if (session.data.size() < 5) { // Ensure we have enough data points (5)
+        System.out.println("Not enough data points for extrapolation. At least 5 data points are required.");
+        return;
+    }
 
-        double nextDay = days[4] + 1;
+    int dataSize = session.data.size();
+    double[] days = new double[5];
+    double[] percentages = new double[5];
+    double[] dribblePercentages = new double[5];
+    double[] runningTimes = new double[5];
 
-        System.out.println("Extrapolating for Day " + (int) nextDay + "...");
+    // Use the last 5 data points for extrapolation
+    for (int i = 0; i < 5; i++) {
+        days[i] = dataSize - 5 + i + 1; // Day number
+        ShootingData data = session.data.get(dataSize - 5 + i);
+        percentages[i] = data.percentage;
+        dribblePercentages[i] = data.dribblePercentage;
+        runningTimes[i] = data.runningTime;
+    }
 
-        // Predict values using divided difference method for extrapolation
-        double predictedShotsPercentage = dividedDifference(days, percentages, nextDay);
-        double predictedDribblePercentage = dividedDifference(days, dribblePercentages, nextDay);
-        double predictedRunningTime = dividedDifference(days, runningTimes, nextDay);
-        
-        // Clamp values to realistic ranges
-        predictedShotsPercentage = Math.max(0, Math.min(100, predictedShotsPercentage));// Percentage should be between 0 and 100
-        predictedDribblePercentage = Math.max(0, Math.min(100, predictedDribblePercentage));  // Percentage should be between 0 and 100
+    double nextDay = days[4] + 1;
 
+    System.out.println("Extrapolating for Day " + (int) nextDay + "...");
 
-        // Display the predicted values
-        System.out.printf("Predicted Results for Day %.0f:%n", nextDay);
-        System.out.printf("  Predicted Shooting Percentage: %.1f%%%n", predictedShotsPercentage);
-        System.out.printf("  Predicted Dribbling Percentage: %.1f%%%n", predictedDribblePercentage);
-        System.out.printf("  Predicted Running Time: %.1f seconds%n", predictedRunningTime);
-        
-        
+    // Predict values using divided difference method for extrapolation
+    double predictedShotsPercentage = dividedDifference(days, percentages, nextDay);
+    double predictedDribblePercentage = dividedDifference(days, dribblePercentages, nextDay);
+    double predictedRunningTime = dividedDifference(days, runningTimes, nextDay);
+
+    // Clamp values to realistic ranges
+    predictedShotsPercentage = Math.max(0, Math.min(100, predictedShotsPercentage));  // Ensure percentages are between 0-100
+    predictedDribblePercentage = Math.max(0, Math.min(100, predictedDribblePercentage));  // Ensure percentages are between 0-100
+
+    // Display the predicted values
+    System.out.printf("Predicted Results for Day %.0f:%n", nextDay);
+    System.out.printf("  Predicted Shooting Percentage: %.1f%%%n", predictedShotsPercentage);
+    System.out.printf("  Predicted Dribbling Percentage: %.1f%%%n", predictedDribblePercentage);
+    System.out.printf("  Predicted Running Time: %.1f seconds%n", predictedRunningTime);
+
+    // Safely update the UI elements within the Event Dispatch Thread
+    SwingUtilities.invokeLater(() -> {
         daysLabel.setText(String.valueOf(nextDay));
-        percentageShotsLabel.setText(String.valueOf(predictedShotsPercentage));
-        percentageDribbleLabel.setText(String.valueOf(predictedDribblePercentage));
-        runningLabel.setText(String.valueOf(predictedRunningTime));;
-        
-    }
+        percentageShotsLabel.setText(String.format("%.1f", predictedShotsPercentage));
+        percentageDribbleLabel.setText(String.format("%.1f", predictedDribblePercentage));
+        runningLabel.setText(String.format("%.1f", predictedRunningTime));
+    });
+}
+
     
     public static double dividedDifference(double[] x, double[] y, double value) {
         int n = x.length;
