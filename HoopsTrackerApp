@@ -69,7 +69,7 @@ public class HoopsTrackerApp extends JFrame {
 	private JTable progressTable;
 
 
-    public HoopsTrackerApp(int storedID) {
+    public HoopsTrackerApp() {
     	setTitle("HoopsTrack");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -86,11 +86,6 @@ public class HoopsTrackerApp extends JFrame {
     }
 
     
-
-    public HoopsTrackerApp() {
-		// TODO Auto-generated constructor stub
-	}
-
 
 
 	// ---------------- MAIN APP PANEL ------------------
