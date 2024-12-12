@@ -184,14 +184,14 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     //private boolean dribblingPaused = false;
 
 
+  
+    private int elapsedTime = 0; // Elapsed time in seconds, class-level variable to persist the time
+
     private JPanel createSkillDrillsPanel() {
         // Custom JPanel with a background image
         JPanel panel = new JPanel(new GridLayout(8, 1, 10, 10)) {
-            /**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-			private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
+            private static final long serialVersionUID = 1L;
+            private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
 
             @Override
             protected void paintComponent(Graphics g) {
@@ -201,28 +201,16 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         };
         panel.setOpaque(false); // Make sure the panel paints the background correctly
 
-        // Timer Input Fields
-        JPanel inputPanel = new JPanel(new FlowLayout());
-        inputPanel.setOpaque(false); // Transparent background for sub-panels
-        JLabel inputLabel = new JLabel("Set Timer (MM:SS): ");
-        inputLabel.setForeground(Color.ORANGE); // Set font color to orange
-        JTextField minutesField = new JTextField(2);
-        JTextField secondsField = new JTextField(2);
-        inputPanel.add(inputLabel);
-        inputPanel.add(minutesField);
-        inputPanel.add(new JLabel(":"));
-        inputPanel.add(secondsField);
-
         // Timer Labels with Bigger Font
-        shootingTimerLabel = new JLabel("Shooting Timer: 00:00", JLabel.CENTER);
+        JLabel shootingTimerLabel = new JLabel("Shooting Timer: 00:00", JLabel.CENTER);
         shootingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
         shootingTimerLabel.setForeground(Color.ORANGE);
 
-        dribblingTimerLabel = new JLabel("Dribbling Timer: 00:00", JLabel.CENTER);
+        JLabel dribblingTimerLabel = new JLabel("Dribbling Timer: 00:00", JLabel.CENTER);
         dribblingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
         dribblingTimerLabel.setForeground(Color.ORANGE);
 
-        exerciseMessageLabel = new JLabel("Select skill level to display exercise details", JLabel.CENTER);
+        JLabel exerciseMessageLabel = new JLabel("Select skill level to display exercise details", JLabel.CENTER);
         exerciseMessageLabel.setFont(new Font("Arial", Font.BOLD, 15));
         exerciseMessageLabel.setForeground(Color.ORANGE);
 
@@ -245,46 +233,29 @@ public class BasketballPerformanceTrackerApp extends JFrame {
         pauseDribblingButton.setPreferredSize(buttonSize);
         resetDribblingButton.setPreferredSize(buttonSize);
 
+        // Stopwatch Logic
+        Timer shootingTimer = createStopwatchTimer(shootingTimerLabel);
+        Timer dribblingTimer = createStopwatchTimer(dribblingTimerLabel);
+
         // Shooting Timer Logic
-        startShootingButton.addActionListener(e -> {
-            int minutes = Integer.parseInt(minutesField.getText());
-            int seconds = Integer.parseInt(secondsField.getText());
-            startTimer(minutes * 60 + seconds, shootingTimerLabel);
-        });
-        pauseShootingButton.addActionListener(e -> pauseTimer());
-        resetShootingButton.addActionListener(e -> resetTimer(shootingTimerLabel));
+        startShootingButton.addActionListener(e -> startStopwatch(shootingTimer, shootingTimerLabel));
+        pauseShootingButton.addActionListener(e -> shootingTimer.stop());
+        resetShootingButton.addActionListener(e -> resetStopwatch(shootingTimer, shootingTimerLabel));
 
         // Dribbling Timer Logic
-        startDribblingButton.addActionListener(e -> {
-            int minutes = Integer.parseInt(minutesField.getText());
-            int seconds = Integer.parseInt(secondsField.getText());
-            startTimer(minutes * 60 + seconds, dribblingTimerLabel);
-        });
-        pauseDribblingButton.addActionListener(e -> pauseTimer());
-        resetDribblingButton.addActionListener(e -> resetTimer(dribblingTimerLabel));
+        startDribblingButton.addActionListener(e -> startStopwatch(dribblingTimer, dribblingTimerLabel));
+        pauseDribblingButton.addActionListener(e -> dribblingTimer.stop());
+        resetDribblingButton.addActionListener(e -> resetStopwatch(dribblingTimer, dribblingTimerLabel));
 
         // Add Components to Panel
-        panel.add(inputPanel);
         panel.add(shootingTimerLabel);
         panel.add(createButtonPanel(startShootingButton, pauseShootingButton, resetShootingButton));
         panel.add(dribblingTimerLabel);
         panel.add(createButtonPanel(startDribblingButton, pauseDribblingButton, resetDribblingButton));
         panel.add(exerciseMessageLabel);
 
-        skillLevelComboBox.addActionListener(e -> updateExerciseMessage());
         return panel;
     }
-
-    // Helper Method to Create Button Panel
-    private JPanel createButtonPanel(JButton start, JButton pause, JButton reset) {
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.setOpaque(false); // Ensure buttons panel is transparent
-        buttonPanel.add(start);
-        buttonPanel.add(pause);
-        buttonPanel.add(reset);
-        return buttonPanel;
-    }
-
 
     // ---------------- RESULTS PANEL ------------------
     private JPanel createResultsPanel() {
@@ -436,39 +407,41 @@ public class BasketballPerformanceTrackerApp extends JFrame {
     
 
     // ---------------- DRILL TIMER ACTIONS ------------------
-    private Timer countdownTimer;
-    private int timeRemaining;
+    private JPanel createButtonPanel(JButton start, JButton pause, JButton reset) {
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.setOpaque(false); // Ensure buttons panel is transparent
+        buttonPanel.add(start);
+        buttonPanel.add(pause);
+        buttonPanel.add(reset);
+        return buttonPanel;
+    }
 
-    private void startTimer(int totalTime, JLabel timerLabel) {
-        if (countdownTimer != null && countdownTimer.isRunning()) {
-            countdownTimer.stop();
-        }
-        timeRemaining = totalTime;
-        countdownTimer = new Timer(1000, e -> {
-            if (timeRemaining <= 0) {
-                countdownTimer.stop();
-                timerLabel.setText("Time's Up!");
-            } else {
-                timeRemaining--;
-                timerLabel.setText(String.format("Timer: %02d:%02d", timeRemaining / 60, timeRemaining % 60));
+    private Timer createStopwatchTimer(JLabel timerLabel) {
+        return new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                elapsedTime++; // Increment elapsed time by 1 second
+                int minutes = elapsedTime / 60;
+                int seconds = elapsedTime % 60;
+                timerLabel.setText(String.format("Timer: %02d:%02d", minutes, seconds));
             }
         });
-        countdownTimer.start();
     }
 
-    private void pauseTimer() {
-        if (countdownTimer != null && countdownTimer.isRunning()) {
-            countdownTimer.stop();
-        }
+    // Start the Stopwatch from 00:00
+    private void startStopwatch(Timer stopwatch, JLabel timerLabel) {
+        stopwatch.start();
     }
 
-    private void resetTimer(JLabel timerLabel) {
-        if (countdownTimer != null) {
-            countdownTimer.stop();
-        }
-        timeRemaining = 0;
-        timerLabel.setText("Timer: 00:00");
+    // Reset Stopwatch to 00:00 and Stop
+    private void resetStopwatch(Timer stopwatch, JLabel timerLabel) {
+        stopwatch.stop(); // Stop the stopwatch
+        elapsedTime = 0; // Reset the elapsed time to 0
+        timerLabel.setText("Timer: 00:00"); // Reset the display to 00:00
     }
+
+    
+    
     // ---------------- RESULT CALCULATION ------------------
     private void calculateResults() {
         try {
