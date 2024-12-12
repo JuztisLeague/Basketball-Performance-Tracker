@@ -216,7 +216,7 @@ public class userLogin extends JFrame {
                         JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
                         // Transition to the next window (BasketballPerformanceTracker)
-                       HoopsTrackerApp BasketballPerformanceTrackerWindow = new HoopsTrackerApp (storedID);
+                       HoopsTrackerApp BasketballPerformanceTrackerWindow = new HoopsTrackerApp ();
                        BasketballPerformanceTrackerWindow.setVisible(true);
 
                         // Hide the current login window
