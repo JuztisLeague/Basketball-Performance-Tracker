@@ -1,6 +1,7 @@
 package App;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,7 +9,10 @@ import java.awt.event.ActionListener;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,11 +41,40 @@ public class HoopsTrackerApp extends JFrame {
     private ArrayList<DailyProgress> trainingProgressList = new ArrayList<>();
     private JTextArea progressTextArea;
 
+	private JLabel sub1;
+	private JLabel sub2;
+	private JLabel sub3;
+	private JLabel sub5;
+	private JLabel sub4;
+	private JLabel sub7;
+	private JLabel sub6;
+	private JLabel sub8;
+	private JLabel sub9;
+	private JLabel d1;
+	private JLabel d2;
+	private JLabel d3;
+	private JLabel d4;
+	private JLabel d5;
+	private JLabel d6;
+	private JLabel d7;
+	private JLabel d8;
+	private JLabel d9;
+	private Database database;
+	private Connection con;
+
+	private String storedID;
+
+	private JLabel timerLabel;
+
+	private JTable progressTable;
+
 
     public HoopsTrackerApp(int storedID) {
     	setTitle("HoopsTrack");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        database = new Database();
+        con = database.getConnection();
 
         // Initialize panels
         //loginPanel = createLoginPanel();
@@ -221,9 +254,10 @@ public class HoopsTrackerApp extends JFrame {
                 g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); // Draw the background image
             }
         };
+        panel.setMaximumSize(new Dimension(800, 600));
         panel.setOpaque(false); // Make sure the panel paints the background correctly
 
-        // Timer Input Fields (already positioned)
+        // Timer Input Fields
         JPanel inputPanel = new JPanel(null);
         inputPanel.setBounds(5, 18, 1, 1);
         inputPanel.setOpaque(false);
@@ -237,72 +271,81 @@ public class HoopsTrackerApp extends JFrame {
         secondsField.setBounds(210, 10, 30, 30);
         inputPanel.add(inputLabel);
         inputPanel.add(minutesField);
+        inputPanel.add(new JLabel(":"));
         inputPanel.add(secondsField);
-
-        // Timer Labels with Bigger Font
-        shootingTimerLabel = new JLabel("Shooting Timer: 00:00", JLabel.CENTER);
-        shootingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        shootingTimerLabel.setForeground(Color.ORANGE);
-        shootingTimerLabel.setBounds(11, 5, 251, 28);
-
-        dribblingTimerLabel = new JLabel("Dribbling Timer: 00:00", JLabel.CENTER);
-        dribblingTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        dribblingTimerLabel.setForeground(Color.ORANGE);
-        dribblingTimerLabel.setBounds(461, 5, 252, 28);
-
-        exerciseMessageLabel = new JLabel("Select skill level to display exercise details", JLabel.CENTER);
-        exerciseMessageLabel.setFont(new Font("Arial", Font.BOLD, 15));
-        exerciseMessageLabel.setForeground(Color.ORANGE);
-        exerciseMessageLabel.setBounds(304, 40, 303, 18);
-
-        // Buttons for Shooting Timer
-        JButton startShootingButton = new JButton("Start");
-        JButton pauseShootingButton = new JButton("Pause");
-        JButton resetShootingButton = new JButton("Reset");
-        // Buttons for Dribbling Timer
-        JButton startDribblingButton = new JButton("Start");
-        JButton pauseDribblingButton = new JButton("Pause");
-        pauseDribblingButton.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        JButton resetDribblingButton = new JButton("Reset");
-
-        // Set bounds for the buttons
-        startShootingButton.setBounds(267, 7, 57, 23);
-        pauseShootingButton.setBounds(329, 7, 61, 23);
-        resetShootingButton.setBounds(395, 7, 61, 23);
-        
-        startDribblingButton.setBounds(718, 7, 57, 23);
-        pauseDribblingButton.setBounds(105, 133, 61, 23);
-        resetDribblingButton.setBounds(238, 38, 61, 23);
         panel.setLayout(null);
 
         // Add Components to Panel
         panel.add(inputPanel);
-        panel.add(shootingTimerLabel);
-        panel.add(startShootingButton);
-        panel.add(pauseShootingButton);
-        panel.add(resetShootingButton);
-        panel.add(dribblingTimerLabel);
-        panel.add(startDribblingButton);
-        panel.add(pauseDribblingButton);
-        panel.add(resetDribblingButton);
-        panel.add(exerciseMessageLabel);
+        
+        JPanel panel1 = new JPanel();
+        panel1.setOpaque(false);
+        panel1.setBackground(new Color(0, 0, 0));
+        panel1.setBounds(5, 11, 252, 491);
+        panel.add(panel1);
+        panel1.setLayout(null);
+
+        JButton pauseTimerButton = new JButton("Pause");
+        pauseTimerButton.setBounds(96, 68, 61, 23);
+        panel1.add(pauseTimerButton);
+        pauseTimerButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            }
+        });
+
+        // Buttons for Dribbling Timer
+        JButton startTimerButton = new JButton("Start"); // Change to startTimerButton
+        startTimerButton.setBounds(10, 68, 57, 23);
+        panel1.add(startTimerButton);
+        
+        timerLabel = new JLabel("Dribbling Timer: 00:00", JLabel.CENTER);
+        timerLabel.setBounds(0, 11, 252, 26);
+        panel1.add(timerLabel);
+        timerLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        timerLabel.setForeground(Color.ORANGE);
+        
+        JButton resetTimerButton = new JButton("Reset");
+        resetTimerButton.setBounds(181, 68, 61, 23);
+        panel1.add(resetTimerButton);
+        
+        JLabel currentLevelDribble = new JLabel("Current Level: 1", SwingConstants.CENTER);
+        currentLevelDribble.setForeground(Color.ORANGE);
+        currentLevelDribble.setFont(new Font("Arial", Font.BOLD, 14));
+        currentLevelDribble.setBounds(0, 36, 252, 26);
+        panel1.add(currentLevelDribble);
+        
+        JTextField minutesField1 = new JTextField();
+        minutesField1.setBounds(23, 113, 50, 20);
+        panel1.add(minutesField1);
+        minutesField1.setColumns(10);
+        
+        JTextField secondField1 = new JTextField();
+        secondField1.setColumns(10);
+        secondField1.setBounds(107, 113, 50, 20);
+        panel1.add(secondField1);
+        
+        JLabel lblNewLabel = new JLabel(":");
+        lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel.setBounds(62, 116, 46, 14);
+        panel1.add(lblNewLabel);
+
+        // Add action listeners
+        startTimerButton.addActionListener(e -> {
+            int minutes = Integer.parseInt(minutesField1.getText());
+            int seconds = Integer.parseInt(secondField1.getText());
+            startTimer(minutes * 60 + seconds, timerLabel);
+        });
+
+        pauseTimerButton.addActionListener(e -> pauseTimer());
+        resetTimerButton.addActionListener(e -> resetTimer(timerLabel));
 
         return panel;
     }
+    
+    
+    
 
-
-    // Helper Method to Create Button Panel
-    private JPanel createButtonPanel(JButton start, JButton pause, JButton reset) {
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.setOpaque(false); // Ensure buttons panel is transparent
-        buttonPanel.add(start);
-        buttonPanel.add(pause);
-        buttonPanel.add(reset);
-        return buttonPanel;
-    }
+    
 
     // ---------------- RESULTS PANEL ------------------
     private JPanel createResultsPanel() {
@@ -348,7 +391,8 @@ public class HoopsTrackerApp extends JFrame {
     }
 
 
-    // ---------------- PROGRESS PANEL ------------------
+ // ---------------- PROGRESS PANEL ------------------
+
     private JPanel createProgressPanel() {
         // Custom JPanel with a background image and absolute layout
         JPanel panel = new JPanel(null) { 
@@ -367,7 +411,7 @@ public class HoopsTrackerApp extends JFrame {
         // Transparent panel with size 20, 20, 740, 460
         JPanel transparentPanel = new JPanel();
         transparentPanel.setOpaque(false); // Make the panel transparent
-        transparentPanel.setBounds(20, 20, 740, 460); // Set size and position
+        transparentPanel.setBounds(10, 11, 753, 487); // Set size and position
         transparentPanel.setLayout(null); // Use absolute layout for positioning components inside it
 
         // Heading label
@@ -375,21 +419,20 @@ public class HoopsTrackerApp extends JFrame {
         heading.setFont(new Font("Arial", Font.BOLD, 18));
         heading.setHorizontalAlignment(SwingConstants.CENTER);
         heading.setForeground(Color.ORANGE);
-        heading.setBounds(41, 84, 155, 22); // Position the heading label
+        heading.setBounds(32, 21, 155, 22); // Position the heading label
         transparentPanel.add(heading);
 
-        // Progress Text Area
-        progressTextArea = new JTextArea(10, 30);
-        progressTextArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(progressTextArea);
-        scrollPane.setBounds(218, 5, 246, 186); // Position the scroll pane
-        transparentPanel.add(scrollPane);
+        // Progress Table with Scroll Pane
+        String[] columnNames = {"x", "y1", "y2", "y3"}; // Column names for the table
+        Object[][] data = {}; // Initialize an empty 2D array for table data (populate this dynamically later)
 
-        // Button to calculate endurance
-        JButton calculateEnduranceButton = new JButton("Calculate Endurance");
-        calculateEnduranceButton.setBounds(453, 142, 131, 23); // Position the button
-        calculateEnduranceButton.addActionListener(e -> calculateEndurance());
-        transparentPanel.add(calculateEnduranceButton);
+        // Create a DefaultTableModel and set it as the model for the JTable
+        DefaultTableModel model = new DefaultTableModel(data, columnNames);
+        progressTable = new JTable(model); // Set the table model here
+
+        JScrollPane scrollPane = new JScrollPane(progressTable); // Wrap the table in a scroll pane
+        scrollPane.setBounds(32, 50, 680, 110); // Position the scroll pane in the panel
+        transparentPanel.add(scrollPane);
 
         // User info label
         userInfoLabel = new JLabel("User Info: Not Available", JLabel.CENTER);
@@ -400,15 +443,56 @@ public class HoopsTrackerApp extends JFrame {
         // Add the transparent panel to the main panel
         panel.add(transparentPanel);
 
+        // Call the method to load progress from the database
+        loadProgressFromDatabase();
+
         return panel;
     }
 
+    // Method to load data from the database and update the progressTable
+    private void loadProgressFromDatabase() {
+        Database db = new Database();
+        con = db.getConnection(); // Get the active connection
 
-    
-    private void loadProgress() {
-        progressTextArea.setText(""); // Clear the progress text area before loading new data
-        for (DailyProgress progress : trainingProgressList) {
-            progressTextArea.append(progress.toString() + "\n");
+        DefaultTableModel model = (DefaultTableModel) progressTable.getModel();
+        model.setRowCount(0); // Clear the current rows in the table
+
+        // SQL query to fetch data from the 'progress' table based on user_name and user_level
+        String query = "SELECT x, y1, y2, y3 FROM progress WHERE name LIKE ? AND level = ?";
+
+        try (PreparedStatement pst = con.prepareStatement(query)) {
+            // Get stored user information
+            String userName = userLogin.storedUserName(); // Assuming storedUserName() returns the user's name
+            int userLevel = userLogin.storedUserLevel(); // Assuming storedUserLevel() returns the user's level
+
+            // Print the user info for debugging
+            System.out.println("User Name: " + userName);
+            System.out.println("User Level: " + userLevel);
+
+            // Bind parameters
+            pst.setString(1, "%" + userName + "%"); // Use wildcard for LIKE
+            pst.setInt(2, userLevel);
+
+            ResultSet rs = pst.executeQuery();
+
+            // Loop through the result set and populate the table model
+            while (rs.next()) {
+                int x = rs.getInt("x");
+                float y1 = rs.getFloat("y1");
+                float y2 = rs.getFloat("y2");
+                int y3 = rs.getInt("y3");
+
+                // Print the values for debugging
+                System.out.printf("Retrieved - x: %d, y1: %.2f, y2: %.2f, y3: %d%n", x, y1, y2, y3);
+
+                Object[] row = { x, y1, y2, y3 };
+                model.addRow(row); // Add the row to the table model
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error loading data from database: " + e.getMessage());
+        } finally {
+            db.closeConnection(); // Close the connection when done
         }
     }
     
