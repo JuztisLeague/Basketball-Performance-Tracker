@@ -117,7 +117,7 @@ public class HoopsTrackerApp extends JFrame {
         double dribblePercentage; // Dribbling percentage for this data point
         double runningTime;      // Running time for the session
 
-        public ShootingData(int skillLevel,  double percentage, double dribblePercentage, double runningTime) {
+        public ShootingData(int skillLevel, double percentage, double dribblePercentage, double runningTime) {
             this.skillLevel = skillLevel;
             this.percentage = percentage;
             this.dribblePercentage = dribblePercentage;
@@ -645,12 +645,10 @@ public class HoopsTrackerApp extends JFrame {
 
 
     // ---------------- PROGRESS PANEL ------------------
-    private JPanel createProgressPanel() {
-        // Custom JPanel with a background image and absolute layout
-    	
-    	List<TrainingSession> trainingData = new ArrayList<>();
+   private JPanel createProgressPanel() {
+        List<TrainingSession> trainingData = new ArrayList<>();
         initializeSkillLevels(trainingData);
-        
+
         JPanel panel = new JPanel(null) { 
             private static final long serialVersionUID = 1L;
             private Image backgroundImage = new ImageIcon("C:\\Von Folder\\Java Codes\\NumericalProject\\src\\pictures\\basketball2.jpg").getImage();
@@ -666,61 +664,65 @@ public class HoopsTrackerApp extends JFrame {
 
         // Transparent panel with size 20, 20, 740, 460
         JPanel transparentPanel = new JPanel();
-        transparentPanel.setOpaque(false); // Make the panel transparent
-        transparentPanel.setBounds(10, 11, 753, 487); // Set size and position
-        transparentPanel.setLayout(null); // Use absolute layout for positioning components inside it
+        transparentPanel.setOpaque(false); 
+        transparentPanel.setBounds(10, 11, 753, 487); 
+        transparentPanel.setLayout(null); 
 
         // Heading label
         JLabel heading = new JLabel("Training Progress");
         heading.setFont(new Font("Arial", Font.BOLD, 18));
         heading.setHorizontalAlignment(SwingConstants.CENTER);
         heading.setForeground(Color.ORANGE);
-        heading.setBounds(32, 21, 155, 22); // Position the heading label
+        heading.setBounds(32, 21, 155, 22); 
         transparentPanel.add(heading);
 
         // Progress Table with Scroll Pane
-        String[] columnNames = {"x", "y1", "y2", "y3"}; // Column names for the table
-        Object[][] data = {}; // Initialize an empty 2D array for table data (populate this dynamically later)
+        String[] columnNames = {"x", "y1", "y2", "y3"}; 
+        Object[][] data = {}; 
 
         // Create a DefaultTableModel and set it as the model for the JTable
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
-        progressTable = new JTable(model); // Set the table model here
+        JTable progressTable = new JTable(model); 
 
-        JScrollPane scrollPane = new JScrollPane(progressTable); // Wrap the table in a scroll pane
-        scrollPane.setBounds(32, 50, 680, 110); // Position the scroll pane in the panel
+        JScrollPane scrollPane = new JScrollPane(progressTable); 
+        scrollPane.setBounds(32, 50, 680, 110); 
         transparentPanel.add(scrollPane);
 
         // User info label
-        userInfoLabel = new JLabel("User Info: Not Available", JLabel.CENTER);
+        JLabel userInfoLabel = new JLabel("User Info: Not Available", JLabel.CENTER);
         userInfoLabel.setForeground(Color.ORANGE);
-        userInfoLabel.setBounds(605, 91, 115, 14); // Position the label
+        userInfoLabel.setBounds(605, 91, 115, 14); 
         transparentPanel.add(userInfoLabel);
 
         // Add the transparent panel to the main panel
         panel.add(transparentPanel);
-        
-        daysLabel = new JLabel("New label");
+
+        // Labels to display extrapolated results
+        JLabel daysLabel = new JLabel("New label");
         daysLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
         daysLabel.setBounds(69, 273, 118, 82);
         transparentPanel.add(daysLabel);
-        
-        percentageShotsLabel = new JLabel("New label");
+
+        JLabel percentageShotsLabel = new JLabel("New label");
         percentageShotsLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
         percentageShotsLabel.setBounds(274, 273, 118, 82);
         transparentPanel.add(percentageShotsLabel);
-        
-        percentageDribbleLabel = new JLabel("New label");
+
+        JLabel percentageDribbleLabel = new JLabel("New label");
         percentageDribbleLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
         percentageDribbleLabel.setBounds(433, 273, 118, 82);
         transparentPanel.add(percentageDribbleLabel);
-        
-        runningLabel = new JLabel("New label");
+
+        JLabel runningLabel = new JLabel("New label");
         runningLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
         runningLabel.setBounds(594, 273, 118, 82);
         transparentPanel.add(runningLabel);
 
         // Call the method to load progress from the database
-        loadProgressFromDatabase(trainingData);
+        loadProgressFromDatabase(trainingData, progressTable);
+
+        // Extrapolation method called periodically or when needed
+        performExtrapolation(trainingData, daysLabel, percentageShotsLabel, percentageDribbleLabel, runningLabel);
 
         return panel;
     }
