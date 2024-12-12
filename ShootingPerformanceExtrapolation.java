@@ -6,23 +6,36 @@ import java.util.Scanner;
 
 public class ShootingPerformanceExtrapolation {
 
-    // Class to store shooting data for a single data point
+    // Class to store shooting and dribbling data for a single data point
     static class ShootingData {
-        int skillLevel; // Skill level associated with this data point
-        double shotsMade; // Number of shots made
-        double percentage; // Shooting percentage for this data point
+        int skillLevel;          // Skill level associated with this data point
+        double shotsMade;        // Number of shots made
+        double percentage;       // Shooting percentage for this data point
+        double dribblesMade;     // Number of dribbles made
+        double dribblePercentage; // Dribbling percentage for this data point
+        double runningTime;      // Running time for the session
+
+        public ShootingData(int skillLevel, double shotsMade, double percentage, double dribblesMade, double dribblePercentage, double runningTime) {
+            this.skillLevel = skillLevel;
+            this.shotsMade = shotsMade;
+            this.percentage = percentage;
+            this.dribblesMade = dribblesMade;
+            this.dribblePercentage = dribblePercentage;
+            this.runningTime = runningTime;
+        }
     }
 
     // Class to store training session data for a specific skill level
     static class TrainingSession {
-        int level; // Skill level of the session
-        List<ShootingData> data; // List of shooting data points for this skill level
-        int totalAttempts; // Total attempts available for this skill level
+        int level;                  // Skill level of the session
+        List<ShootingData> data;    // List of shooting data points for this skill level
+        int totalAttempts;          // Total attempts available for this skill level
+        int maxDribbles;            // Max dribbles for this skill level
 
-        // Constructor to initialize the training session
-        public TrainingSession(int level, int totalAttempts) {
+        public TrainingSession(int level, int totalAttempts, int maxDribbles) {
             this.level = level;
             this.totalAttempts = totalAttempts;
+            this.maxDribbles = maxDribbles;
             this.data = new ArrayList<>();
         }
     }
@@ -30,145 +43,183 @@ public class ShootingPerformanceExtrapolation {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         List<TrainingSession> trainingData = new ArrayList<>();
-        initializeSkillLevels(trainingData); // Set up initial skill levels and their total attempts
+        initializeSkillLevels(trainingData);
 
         while (true) {
-            // Main menu
-            System.out.println("\n=== Shooting Performance Extrapolation ===");
-            System.out.println("1. Enter Shooting Data");
+            System.out.println("\n=== Shooting and Dribbling Performance Extrapolation ===");
+            System.out.println("1. Enter Shooting and Dribbling Data");
             System.out.println("2. View Progress");
             System.out.println("3. Perform Extrapolation");
             System.out.println("4. Exit");
             System.out.print("Select an option: ");
             int choice = scanner.nextInt();
 
-            // Handle user choice
             switch (choice) {
                 case 1:
-                    enterShootingData(scanner, trainingData); // Add shooting data
+                    enterShootingData(scanner, trainingData);
                     break;
                 case 2:
-                    viewProgress(trainingData); // View current training progress
+                    viewProgress(trainingData);
                     break;
                 case 3:
-                    performExtrapolation(scanner, trainingData); // Perform extrapolation
+                    performExtrapolation(trainingData);
                     break;
                 case 4:
                     System.out.println("Exiting...");
-                    return; // Exit the program
+                    return;
                 default:
                     System.out.println("Invalid option. Try again.");
             }
         }
     }
 
-    // Initialize skill levels with predefined total attempts
+    // Initialize skill levels with predefined total attempts and max dribbles
     public static void initializeSkillLevels(List<TrainingSession> trainingData) {
-        trainingData.add(new TrainingSession(1, 10)); // Level 1: 10 attempts
-        trainingData.add(new TrainingSession(2, 25)); // Level 2: 25 attempts
-        trainingData.add(new TrainingSession(3, 50)); // Level 3: 50 attempts
+        trainingData.add(new TrainingSession(1, 10, 20)); // Skill 1
+        trainingData.add(new TrainingSession(2, 25, 40)); // Skill 2
+        trainingData.add(new TrainingSession(3, 50, 50)); // Skill 3
     }
 
-    // Enter shooting data for a specific skill level
+    // Function to enter shooting and dribbling data, including running time
     public static void enterShootingData(Scanner scanner, List<TrainingSession> trainingData) {
         System.out.print("Enter skill level (1-3): ");
         int skillLevel = scanner.nextInt();
 
-        // Validate skill level
         if (skillLevel < 1 || skillLevel > 3) {
             System.out.println("Invalid skill level. Must be between 1 and 3.");
             return;
         }
 
         TrainingSession session = trainingData.get(skillLevel - 1);
-        System.out.println("Skill Level " + skillLevel + " - Total Attempts: " + session.totalAttempts);
+        System.out.println("Skill Level " + skillLevel + " - Total Attempts: " + session.totalAttempts + "  Dribbling Max: " + session.maxDribbles);
         System.out.print("Enter the number of data points to add: ");
         int n = scanner.nextInt();
 
-        // Add new data points for this skill level
         for (int i = 0; i < n; i++) {
-            ShootingData data = new ShootingData();
-            data.skillLevel = skillLevel;
             System.out.print("Shots Made [" + (i + 1) + "]: ");
-            data.shotsMade = scanner.nextDouble();
-            // Calculate shooting percentage
-            data.percentage = (data.shotsMade / session.totalAttempts) * 100;
-            System.out.printf("Shooting Percentage: %.1f%%%n", data.percentage);
-            session.data.add(data); // Add data to the session
-        }
+            double shotsMade = scanner.nextDouble();
+            double percentage = (shotsMade / session.totalAttempts) * 100;
 
-        System.out.println("Shooting data saved for Level " + skillLevel + ".");
+            System.out.print("Dribbles Made [" + (i + 1) + "]: ");
+            double dribblesMade = scanner.nextDouble();
+            double dribblePercentage = (dribblesMade / session.maxDribbles) * 100;
+
+            System.out.print("Enter the running time in seconds: ");
+            double runningTime = scanner.nextDouble();
+
+            ShootingData newData = new ShootingData(skillLevel, shotsMade, percentage, dribblesMade, dribblePercentage, runningTime);
+            session.data.add(newData);
+
+            System.out.printf("Shooting Percentage: %.1f%%, Dribbling Percentage: %.1f%%, Running Time: %.1f seconds%n", percentage, dribblePercentage, runningTime);
+        }
     }
 
-    // View training progress for all skill levels
+    // Function to view progress
     public static void viewProgress(List<TrainingSession> trainingData) {
         System.out.println("\n=== Training Progress ===");
         for (TrainingSession session : trainingData) {
             System.out.println("Skill Level " + session.level + " Progress:");
             for (ShootingData data : session.data) {
-                // Display details for each data point
-                System.out.printf("  Shots Made: %.1f/%d, Shooting Percentage: %.1f%%%n",
-                        data.shotsMade, session.totalAttempts, data.percentage);
+                System.out.printf("  Shots Made: %.1f/%d, Shooting Percentage: %.1f%%, Dribbles Made: %.1f/%d, Dribbling Percentage: %.1f%%, Running Time: %.1f seconds%n",
+                        data.shotsMade, session.totalAttempts, data.percentage, data.dribblesMade, session.maxDribbles, data.dribblePercentage, data.runningTime);
             }
         }
     }
 
-    // Perform extrapolation based on user input and training data
-    public static void performExtrapolation(Scanner scanner, List<TrainingSession> trainingData) {
+    // Perform extrapolation using existing data points
+    public static void performExtrapolation(List<TrainingSession> trainingData) {
         System.out.print("Select skill level for extrapolation (1-3): ");
+        Scanner scanner = new Scanner(System.in);
         int skillLevel = scanner.nextInt();
 
-        // Validate skill level
         if (skillLevel < 1 || skillLevel > 3) {
             System.out.println("Invalid skill level. Must be between 1 and 3.");
             return;
         }
 
         TrainingSession session = trainingData.get(skillLevel - 1);
-        if (session.data.isEmpty()) {
-            System.out.println("No data available for extrapolation. Please enter data first.");
+        if (session.data.size() < 5) { // Ensure we have enough data points (5)
+            System.out.println("Not enough data points for extrapolation. At least 5 data points are required.");
             return;
         }
 
-        System.out.print("Enter the number of shots made to extrapolate: ");
-        double shotsToExtrapolate = scanner.nextDouble();
-
-        // Determine number of points to use (up to 10, or all available points if less than 10)
         int dataSize = session.data.size();
-        int pointsToUse = Math.min(10, dataSize);   //if the number of data points is less than 10, it uses all available data points
-        double[] shotsMade = new double[pointsToUse];
-        double[] percentages = new double[pointsToUse];
+        double[] days = new double[5];
+        double[] shotsMade = new double[5];
+        double[] percentages = new double[5];
+        double[] dribbles = new double[5];
+        double[] dribblePercentages = new double[5];
+        double[] runningTimes = new double[5];
 
-        // Extract the latest points for extrapolation (10 most recent data points)
-        for (int i = 0; i < pointsToUse; i++) {
-            ShootingData data = session.data.get(dataSize - pointsToUse + i);
+        // Use the last 5 data points for extrapolation
+        for (int i = 0; i < 5; i++) {
+            days[i] = dataSize - 5 + i + 1; // Day number
+            ShootingData data = session.data.get(dataSize - 5 + i);
             shotsMade[i] = data.shotsMade;
             percentages[i] = data.percentage;
+            dribbles[i] = data.dribblesMade;
+            dribblePercentages[i] = data.dribblePercentage;
+            runningTimes[i] = data.runningTime;
         }
 
-        // Performs the DIVIDED DIFFERENCE METHOD for extrapolation
-        double extrapolatedPercentage = dividedDifference(shotsMade, percentages, shotsToExtrapolate);
-        System.out.printf("Extrapolated Shooting Percentage: %.1f%%%n", extrapolatedPercentage);
+        double nextDay = days[4] + 1;
+
+        System.out.println("Extrapolating for Day " + (int) nextDay + "...");
+
+        // Predict values using divided difference method for extrapolation
+        double predictedShots = dividedDifference(days, shotsMade, nextDay);
+        double predictedDribbles = dividedDifference(days, dribbles, nextDay);
+        double predictedDribblePercentage = dividedDifference(days, dribblePercentages, nextDay);
+        double predictedRunningTime = dividedDifference(days, runningTimes, nextDay);
+
+        // Calculate predicted shooting percentage based on predicted shots and total attempts
+        double predictedPercentage = (predictedShots / session.totalAttempts) * 100;
+
+        // Clamp values to realistic ranges
+        predictedShots = Math.max(0, predictedShots);  // Shots made can't be negative
+        predictedPercentage = Math.max(0, Math.min(100, predictedPercentage));  // Percentage should be between 0 and 100
+        predictedDribbles = Math.max(0, predictedDribbles);  // Dribbles can't be negative
+        predictedDribblePercentage = Math.max(0, Math.min(100, predictedDribblePercentage));  // Percentage should be between 0 and 100
+
+        // Enforce skill-level-specific limits for shots and dribbles
+        if (skillLevel == 1) {
+            predictedShots = Math.min(predictedShots, session.totalAttempts);  // Skill level 1 max shots = total attempts
+            predictedDribbles = Math.min(predictedDribbles, session.maxDribbles);  // Skill level 1 max dribbles
+        } else if (skillLevel == 2) {
+            predictedShots = Math.min(predictedShots, session.totalAttempts);  // Skill level 2 max shots = total attempts
+            predictedDribbles = Math.min(predictedDribbles, session.maxDribbles);  // Skill level 2 max dribbles
+        } else if (skillLevel == 3) {
+            predictedShots = Math.min(predictedShots, session.totalAttempts);  // Skill level 3 max shots = total attempts
+            predictedDribbles = Math.min(predictedDribbles, session.maxDribbles);  // Skill level 3 max dribbles
+        }
+
+        // Display the predicted values
+        System.out.printf("Predicted Results for Day %.0f:%n", nextDay);
+        System.out.printf("  Predicted Shots Made: %.1f (Max: %d)%n", predictedShots, session.totalAttempts);
+        System.out.printf("  Predicted Shooting Percentage: %.1f%%%n", predictedPercentage);
+        System.out.printf("  Predicted Dribbles Made: %.1f (Max: %d)%n", predictedDribbles, session.maxDribbles);
+        System.out.printf("  Predicted Dribbling Percentage: %.1f%%%n", predictedDribblePercentage);
+        System.out.printf("  Predicted Running Time: %.1f seconds%n", predictedRunningTime);
     }
 
-    // Compute extrapolated value using Newton's divided difference method
+    // Divided difference method for extrapolation
     public static double dividedDifference(double[] x, double[] y, double value) {
         int n = x.length;
         double[][] diffTable = new double[n][n];
 
-        // Fill the first column with y-values
+        // Initialize the first column with y values
         for (int i = 0; i < n; i++) {
             diffTable[i][0] = y[i];
         }
 
-        // Calculate divided differences
+        // Calculate the divided differences
         for (int j = 1; j < n; j++) {
             for (int i = 0; i < n - j; i++) {
                 diffTable[i][j] = (diffTable[i + 1][j - 1] - diffTable[i][j - 1]) / (x[i + j] - x[i]);
             }
         }
 
-        // Compute the extrapolated value
+        // Evaluate the polynomial at the given value
         double result = diffTable[0][0];
         double product = 1;
 
@@ -180,3 +231,4 @@ public class ShootingPerformanceExtrapolation {
         return result;
     }
 }
+
