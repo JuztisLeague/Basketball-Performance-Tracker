@@ -1,0 +1,88 @@
+package App;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
+public class Database {
+
+    private static final String URL = "jdbc:mysql://localhost:3306/basketballpt";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+
+    // Holds the active connection
+    private Connection con;
+
+    public Connection getConnection() {
+        if (con == null) {
+            connect(); // Establish connection if not already connected
+        }
+        return con;
+    }
+
+    /**
+     * Establish a connection to the database.
+     */
+    public void connect() {
+        try {
+            // Load MySQL JDBC Driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Create a connection to the database
+            con = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Database connection successful.");
+
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, 
+                "Failed to connect to database. Driver not found: " + ex.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, 
+                "Failed to connect to database. SQLException: " + ex.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        }
+    }
+
+    /**
+     * Close the database connection.
+     */
+    public void closeConnection() {
+        if (con != null) {
+            try {
+                con.close();
+                System.out.println("Database connection closed.");
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, 
+                    "Failed to close database connection. SQLException: " + ex.getMessage(), 
+                    "Database Error", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    /**
+     * Utility method for closing resources like ResultSet and PreparedStatement.
+     */
+    public static void closeResources(ResultSet rs, PreparedStatement pst) {
+        try {
+            if (rs != null) rs.close();
+            if (pst != null) pst.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, 
+                "Failed to close resources. SQLException: " + ex.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+}
