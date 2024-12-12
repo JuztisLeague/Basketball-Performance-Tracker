@@ -2,6 +2,7 @@ package App;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.JTextComponent;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,7 +31,7 @@ public class HoopsTrackerApp extends JFrame {
     private JPanel loginPanel, signUpPanel, mainAppPanel;
 
     // Fields for User Info
-    private JTextField ageField, weightField, shotsMadeField, dribblingTimeField;
+    private JTextField ageField, weightField, shotsMadeField, dribblingErrorField;
     private JComboBox<String> bodyTypeComboBox, skillLevelComboBox, trainingDaysComboBox;
     private JLabel shootingTimerLabel, dribblingTimerLabel, exerciseMessageLabel, userInfoLabel;
     private Timer shootingTimer, dribblingTimer;
@@ -38,7 +40,6 @@ public class HoopsTrackerApp extends JFrame {
     private String savedAge, savedWeight, savedBodyType, savedSkillLevel, savedTrainingDays;
 
     // To store progress
-    private ArrayList<DailyProgress> trainingProgressList = new ArrayList<>();
     private JTextArea progressTextArea;
 
 	private JLabel sub1;
@@ -67,6 +68,20 @@ public class HoopsTrackerApp extends JFrame {
 	private JLabel timerLabel;
 
 	private JTable progressTable;
+
+	private JTextField minutesField;
+
+	private JLabel y1;
+
+	private JLabel y2;
+
+	private JLabel y3;
+
+	private int storedGoal1;
+
+	private int storedGoal2;
+
+	private int storedGoal3;
 
 
     public HoopsTrackerApp() {
@@ -293,7 +308,7 @@ public class HoopsTrackerApp extends JFrame {
         startTimerButton.setBounds(10, 68, 57, 23);
         panel1.add(startTimerButton);
         
-        timerLabel = new JLabel("Dribbling Timer: 00:00", JLabel.CENTER);
+        timerLabel = new JLabel("Timer: 00:00", JLabel.CENTER);
         timerLabel.setBounds(0, 11, 252, 26);
         panel1.add(timerLabel);
         timerLabel.setFont(new Font("Arial", Font.BOLD, 22));
@@ -323,6 +338,49 @@ public class HoopsTrackerApp extends JFrame {
         lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
         lblNewLabel.setBounds(62, 116, 46, 14);
         panel1.add(lblNewLabel);
+        
+        JLabel stopwatchLabel = new JLabel("Stopwatch: 00:00", SwingConstants.CENTER);
+        stopwatchLabel.setForeground(Color.ORANGE);
+        stopwatchLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        stopwatchLabel.setBounds(0, 208, 252, 26);
+        panel1.add(stopwatchLabel);
+        
+        JButton startStopwatchButton = new JButton("Start");
+        startStopwatchButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		startStopwatch();
+        	}
+        });
+        startStopwatchButton.setBounds(10, 250, 57, 23);
+        panel1.add(startStopwatchButton);
+        
+        JButton pauseStopwatchButton_1 = new JButton("Pause");
+        pauseStopwatchButton_1.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		pauseStopwatch();
+        	}
+        });
+        pauseStopwatchButton_1.setBounds(96, 250, 61, 23);
+        panel1.add(pauseStopwatchButton_1);
+        
+        JButton resetStopwatchButton = new JButton("Reset");
+        resetStopwatchButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		resetStopwatch();
+        	}
+        });
+        resetStopwatchButton.setBounds(181, 250, 61, 23);
+        panel1.add(resetStopwatchButton);
+        
+        JPanel panel_1 = new JPanel();
+        panel_1.setBounds(262, 11, 507, 491);
+        panel.add(panel_1);
+        panel_1.setLayout(null);
+        
+        picture = new JLabel("New label");
+        picture.setHorizontalAlignment(SwingConstants.LEFT);
+        picture.setBounds(2, 0, 507, 491);
+        panel_1.add(picture);
 
         // Add action listeners
         startTimerButton.addActionListener(e -> {
@@ -333,8 +391,25 @@ public class HoopsTrackerApp extends JFrame {
 
         pauseTimerButton.addActionListener(e -> pauseTimer());
         resetTimerButton.addActionListener(e -> resetTimer(timerLabel));
+        
+        switch (userLogin.storedUserLevel()) {
+        case 1:{
+        	picture.setIcon(new ImageIcon(HoopsTrackerApp.class.getResource("/Images/1.jpg")));
+        	break;
+        }
+        case 2:{
+        	picture.setIcon(new ImageIcon(HoopsTrackerApp.class.getResource("/Images/2.jpg")));
+        	break;
+        }
+        case 3:{
+        	picture.setIcon(new ImageIcon(HoopsTrackerApp.class.getResource("/Images/3.jpg")));
+        	break;
+        }
+        }
 
+        
         return panel;
+        
     }
     
     
@@ -357,37 +432,180 @@ public class HoopsTrackerApp extends JFrame {
         };
         panel.setOpaque(false); // Make sure the panel paints the background correctly
         panel.setLayout(null);
+        
+        JPanel panel_1 = new JPanel();
+        panel_1.setBounds(10, 9, 760, 491);
+        panel.add(panel_1);
+                        panel_1.setLayout(null);
+                
+                        // Shots Made Label
+                        JLabel shotsMadeLabel = new JLabel("Shots Made");
+                        shotsMadeLabel.setBounds(24, 66, 156, 31);
+                        panel_1.add(shotsMadeLabel);
+                        shotsMadeLabel.setFont(new Font("Arial", Font.BOLD, 26));
+                        shotsMadeLabel.setForeground(Color.ORANGE);
+                shotsMadeField = new JTextField();
+                shotsMadeField.setBounds(259, 73, 97, 26);
+                panel_1.add(shotsMadeField);
+                dribblingErrorField = new JTextField();
+                dribblingErrorField.setBounds(259, 155, 97, 26);
+                panel_1.add(dribblingErrorField);
+                
+                        // Calculate Button
+                        JButton calculateButton = new JButton("Calculate Results");
+                        calculateButton.addActionListener(e -> calculateResults1());
 
-        // Shots Made Label
-        JLabel shotsMadeLabel = new JLabel("Shots Made:");
-        shotsMadeLabel.setForeground(Color.ORANGE);
-        shotsMadeLabel.setBounds(234, 9, 60, 14);
-        panel.add(shotsMadeLabel);
-        shotsMadeField = new JTextField();
-        shotsMadeField.setBounds(299, 6, 7, 20);
-        panel.add(shotsMadeField);
-
-        // Dribbling Time Label
-        JLabel dribblingTimeLabel = new JLabel("Dribbling Time (secs):");
-        dribblingTimeLabel.setForeground(Color.ORANGE);
-        dribblingTimeLabel.setBounds(311, 9, 102, 14);
-        panel.add(dribblingTimeLabel);
-        dribblingTimeField = new JTextField();
-        dribblingTimeField.setBounds(418, 6, 7, 20);
-        panel.add(dribblingTimeField);
-
-        // Calculate Button
-        JButton calculateButton = new JButton("Calculate Results");
-        calculateButton.setBounds(430, 5, 115, 23);
-        calculateButton.addActionListener(e -> calculateResults());
-        panel.add(calculateButton);
+                        calculateButton.setBounds(160, 345, 115, 23);
+                        panel_1.add(calculateButton);
+                        
+                        JLabel dribblingTimeLabel = new JLabel("Dribbling  Errors");
+                        dribblingTimeLabel.setForeground(Color.ORANGE);
+                        dribblingTimeLabel.setFont(new Font("Arial", Font.BOLD, 26));
+                        dribblingTimeLabel.setBounds(24, 148, 235, 31);
+                        panel_1.add(dribblingTimeLabel);
+                        
+                        JLabel lblRunningTime = new JLabel("Running Time");
+                        lblRunningTime.setForeground(Color.ORANGE);
+                        lblRunningTime.setFont(new Font("Arial", Font.BOLD, 26));
+                        lblRunningTime.setBounds(24, 244, 204, 31);
+                        panel_1.add(lblRunningTime);
+                        
+                        minutesField = new JTextField();
+                        minutesField.setBounds(259, 251, 32, 26);
+                        panel_1.add(minutesField);
+                        
+                        JLabel goalTitle = new JLabel("GOAL");
+                        goalTitle.setHorizontalAlignment(SwingConstants.CENTER);
+                        goalTitle.setForeground(new Color(0, 0, 0));
+                        goalTitle.setFont(new Font("Arial", Font.BOLD, 26));
+                        goalTitle.setBounds(422, 11, 90, 31);
+                        panel_1.add(goalTitle);
+                        
+                        JLabel goal1 = new JLabel("#");
+                        goal1.setHorizontalAlignment(SwingConstants.CENTER);
+                        goal1.setForeground(Color.BLACK);
+                        goal1.setFont(new Font("Arial", Font.BOLD, 26));
+                        goal1.setBounds(422, 66, 90, 31);
+                        panel_1.add(goal1);
+                        
+                        JLabel goal2 = new JLabel("#");
+                        goal2.setHorizontalAlignment(SwingConstants.CENTER);
+                        goal2.setForeground(Color.BLACK);
+                        goal2.setFont(new Font("Arial", Font.BOLD, 26));
+                        goal2.setBounds(422, 155, 90, 31);
+                        panel_1.add(goal2);
+                        
+                        JLabel goal3 = new JLabel("#");
+                        goal3.setHorizontalAlignment(SwingConstants.CENTER);
+                        goal3.setForeground(Color.BLACK);
+                        goal3.setFont(new Font("Arial", Font.BOLD, 26));
+                        goal3.setBounds(422, 244, 90, 31);
+                        panel_1.add(goal3);
+                        
+                        JLabel y = new JLabel("y");
+                        y.setHorizontalAlignment(SwingConstants.CENTER);
+                        y.setForeground(Color.BLACK);
+                        y.setFont(new Font("Arial", Font.BOLD, 26));
+                        y.setBounds(600, 11, 90, 31);
+                        panel_1.add(y);
+                        
+                        y1 = new JLabel("y");
+                        y1.setHorizontalAlignment(SwingConstants.CENTER);
+                        y1.setForeground(Color.BLACK);
+                        y1.setFont(new Font("Arial", Font.BOLD, 26));
+                        y1.setBounds(600, 66, 90, 31);
+                        panel_1.add(y1);
+                        
+                        y2 = new JLabel("y");
+                        y2.setHorizontalAlignment(SwingConstants.CENTER);
+                        y2.setForeground(Color.BLACK);
+                        y2.setFont(new Font("Arial", Font.BOLD, 26));
+                        y2.setBounds(600, 150, 90, 31);
+                        panel_1.add(y2);
+                        
+                        y3 = new JLabel("y");
+                        y3.setHorizontalAlignment(SwingConstants.CENTER);
+                        y3.setForeground(Color.BLACK);
+                        y3.setFont(new Font("Arial", Font.BOLD, 26));
+                        y3.setBounds(600, 244, 90, 31);
+                        panel_1.add(y3);
+                        
+                        JLabel description1 = new JLabel("Shoot 15 shots in the paint");
+                        description1.setBounds(24, 108, 204, 14);
+                        panel_1.add(description1);
+                        
+                        JLabel description2 = new JLabel("Dribble 20 crossovers");
+                        description2.setBounds(24, 200, 204, 14);
+                        panel_1.add(description2);
+                        
+                        JLabel description3 = new JLabel("Run 5 rounds");
+                        description3.setBounds(24, 297, 204, 14);
+                        panel_1.add(description3);
+                        
+                        JLabel lblMakes = new JLabel("MAKES");
+                        lblMakes.setHorizontalAlignment(SwingConstants.CENTER);
+                        lblMakes.setBounds(403, 97, 138, 14);
+                        panel_1.add(lblMakes);
+                        
+                        JLabel lblMakes2 = new JLabel("MAKES");
+                        lblMakes2.setHorizontalAlignment(SwingConstants.CENTER);
+                        lblMakes2.setBounds(403, 184, 138, 14);
+                        panel_1.add(lblMakes2);
+                        
+                        JLabel time = new JLabel("ROUNDS");
+                        time.setHorizontalAlignment(SwingConstants.CENTER);
+                        time.setBounds(403, 275, 138, 14);
+                        panel_1.add(time);
+                        
+                        secondsField = new JTextField();
+                        secondsField.setBounds(310, 251, 32, 26);
+                        panel_1.add(secondsField);
+                        
+                        JLabel goal3_1 = new JLabel(":");
+                        goal3_1.setHorizontalAlignment(SwingConstants.CENTER);
+                        goal3_1.setForeground(Color.BLACK);
+                        goal3_1.setFont(new Font("Arial", Font.BOLD, 26));
+                        goal3_1.setBounds(259, 250, 83, 31);
+                        panel_1.add(goal3_1);
+                        
+        switch(userLogin.storedUserLevel()) {
+        case 1:{
+        	
+        	storedGoal1 =15;
+        	storedGoal2 =20;
+        	storedGoal3 =5;
+        	goal1.setText("15");
+        	goal2.setText("20");
+        	goal3.setText("5");
+        	break;
+        }
+        case 2:{
+        	storedGoal1 =15;
+        	storedGoal2 =40;
+        	storedGoal3 =7;
+        	goal1.setText("15");
+        	goal2.setText("40");
+        	goal3.setText("7");
+        	break;
+        }
+        case 3:{
+        	storedGoal1 =15;
+        	storedGoal2 =50;
+        	storedGoal3 =9;
+        	goal1.setText("15");
+        	goal2.setText("40");
+        	goal3.setText("9");
+        	break;
+        }
+       
+        	
+        }
 
         return panel;
     }
 
 
- // ---------------- PROGRESS PANEL ------------------
-
+    // ---------------- PROGRESS PANEL ------------------
     private JPanel createProgressPanel() {
         // Custom JPanel with a background image and absolute layout
         JPanel panel = new JPanel(null) { 
@@ -491,16 +709,7 @@ public class HoopsTrackerApp extends JFrame {
         }
     }
     
-    private void calculateEndurance() {
-        try {
-            int shotsMade = Integer.parseInt(shotsMadeField.getText());
-            int dribblingTime = Integer.parseInt(dribblingTimeField.getText());
-            int endurance = (shotsMade * 10) + (300 - dribblingTime); // Arbitrary formula for endurance
-            JOptionPane.showMessageDialog(this, "Your endurance score is: " + endurance, "Endurance", JOptionPane.INFORMATION_MESSAGE);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid data for endurance calculation!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    
 
     // ---------------- USER INFO ACTION ------------------
     private void saveUserInfo() {
@@ -574,6 +783,7 @@ public class HoopsTrackerApp extends JFrame {
     // ---------------- DRILL TIMER ACTIONS ------------------
     private Timer countdownTimer;
     private int timeRemaining;
+    private JTextField secondsField;
 
     private void startTimer(int totalTime, JLabel timerLabel) {
         if (countdownTimer != null && countdownTimer.isRunning()) {
@@ -605,59 +815,156 @@ public class HoopsTrackerApp extends JFrame {
         timeRemaining = 0;
         timerLabel.setText("Timer: 00:00");
     }
+    
+ // Stopwatch Variables
+    private Timer stopwatchTimer;
+    private int elapsedTime = 0;
+
+	private JLabel stopwatchLabel;
+	private JLabel picture;
+
+    
+	// Method to start the stopwatch
+	private void startStopwatch() {
+	    // Stop any existing timer
+	    if (stopwatchTimer != null && stopwatchTimer.isRunning()) {
+	        stopwatchTimer.stop();
+	    }
+
+	    // Initialize the timer to update every second
+	    stopwatchTimer = new Timer(1000, e -> {
+	        elapsedTime++; // Increment elapsed time
+	        int minutes = elapsedTime / 60; // Calculate minutes
+	        int seconds = elapsedTime % 60; // Calculate seconds
+	        stopwatchLabel.setText(String.format("Stopwatch: %02d:%02d", minutes, seconds)); // Update the label
+	    });
+	    
+	    stopwatchTimer.start(); // Start the timer
+	}
+
+	// Method to pause the stopwatch
+	private void pauseStopwatch() {
+	    if (stopwatchTimer != null && stopwatchTimer.isRunning()) {
+	        stopwatchTimer.stop(); // Stop the timer
+	    }
+	}
+
+	// Method to reset the stopwatch
+	private void resetStopwatch() {
+	    if (stopwatchTimer != null) {
+	        stopwatchTimer.stop(); // Stop the timer if running
+	    }
+	    elapsedTime = 0; // Reset elapsed time
+	    stopwatchLabel.setText("Stopwatch: 00:00"); // Update the label to show reset time
+	}
     // ---------------- RESULT CALCULATION ------------------
-    private void calculateResults() {
+    
+    private void calculateResults1() {
         try {
-            // Get shots made and validate input
+            // Get the values from the input fields
             int shotsMade = Integer.parseInt(shotsMadeField.getText());
-            int totalShots = 25; // Fixed total shots for training
+            int totalShots = storedGoal1; // Fixed total shots for training
+            int totalDribbles = storedGoal2;
+            int dribblesMade = totalDribbles - Integer.parseInt(dribblingErrorField.getText());
+
+            // Validate shots made
             if (shotsMade < 0 || shotsMade > totalShots) {
                 throw new NumberFormatException("Shots made should be between 0 and " + totalShots);
             }
 
-            // Calculate shooting percentage
-            double shootingPercentage = (shotsMade * 100.0) / totalShots;
-
-            // Get dribbling time and validate input
-            int dribblingTime = Integer.parseInt(dribblingTimeField.getText());
-            if (dribblingTime < 0) {
-                throw new NumberFormatException("Dribbling time cannot be negative");
+            // Validate dribbles made
+            if (dribblesMade < 0 || dribblesMade > totalDribbles) {
+                throw new NumberFormatException("Dribbles made should be between 0 and " + totalDribbles);
             }
 
-            // Get training day and validate input
-            int trainingDay = Integer.parseInt(savedTrainingDays);  // Ensure `savedTrainingDays` is properly initialized and valid
+            // Calculate the percentage of shots made for y1 (based on goal1)
+            float shotsMadePercentage = (shotsMade / (float) totalShots) * 100;
+            y1.setText(String.format("%.2f%%", shotsMadePercentage));  // Update the y1 label with the percentage
 
-            // Create and store the new progress
-            DailyProgress newProgress = new DailyProgress(shotsMade, dribblingTime, shootingPercentage, trainingDay);
-            trainingProgressList.add(newProgress);
+            // Calculate the percentage of dribbling errors for y2 (based on goal2)
+            float dribblesMadePercentage = (dribblesMade / (float) totalDribbles) * 100;
+            y2.setText(String.format("%.2f%%", dribblesMadePercentage));  // Update the y2 label with the percentage
+
+            // Validate minutes and seconds
+            int minutes = Integer.parseInt(minutesField.getText());
+            int seconds = Integer.parseInt(secondsField.getText());
+
+            if (minutes < 0 || minutes > 99) {
+                throw new NumberFormatException("Minutes should be between 0 and 99.");
+            }
+            if (seconds < 0 || seconds > 59) {
+                throw new NumberFormatException("Seconds should be between 0 and 59.");
+            }
+
+            // Convert running time to total seconds
+            int runningTime = (minutes * 60) + seconds;
+            y3.setText(String.format("%d", runningTime));  // Update y3 with the formatted time
+
+            // Store the results in both databases
+            storeResultsInProgressDatabase();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid data for calculation: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            // Handle cases where input is not a valid integer (e.g., user leaves fields empty or enters text)
+            JOptionPane.showMessageDialog(null, "Please enter valid numbers for all fields: " + e.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
+    private void storeResultsInProgressDatabase() {
+        Database db = new Database();
+        con = db.getConnection(); // Get the active connection
 
-    	
+        // Parse the values from the labels y1, y2, and y3
+        float y1Value = parsePercentage(y1.getText());
+        float y2Value = parsePercentage(y2.getText());
+        int y3Value = Integer.parseInt(y3.getText());
 
-    // ---------------- UPDATE EXERCISE MESSAGE ------------------
-    private void updateExerciseMessage() {
-        String skillLevel = (String) skillLevelComboBox.getSelectedItem();
-        switch (skillLevel) {
-            case "1":
-                exerciseMessageLabel.setText("<html><b>Skill Level 1 Exercises:</b><br>Shooting Drill (4-5 minutes): 5 shots from each of 3 spots.<br>Dribbling Drill (4-5 minutes): Simple cone course (timed).</html>");
-                break;
-            case "2":
-                exerciseMessageLabel.setText("<html><b>Skill Level 2 Exercises:</b><br>Shooting Drill (4-5 minutes): 5 shots from each of 3 farther spots.<br>Dribbling Drill (4-5 minutes): Cone course (timed).</html>");
-                break;
-            case "3":
-                exerciseMessageLabel.setText("<html><b>Skill Level 3 Exercises:</b><br>Shooting Drill (4-5 minutes): 5 shots from each of 3-point lane spots.<br>Dribbling Drill (4-5 minutes): Complex cone course.</html>");
-                break;
-            default:
-                exerciseMessageLabel.setText("Select a skill level to view the exercise details.");
-                break;
+        // Variable to hold the last value of x
+        int lastXValue = 0;
+
+        // Query to get the last value of x
+        String lastXQuery = "SELECT x FROM progress ORDER BY x DESC LIMIT 1";
+
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(lastXQuery)) {
+            if (rs.next()) {
+                lastXValue = rs.getInt("x");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error retrieving last value of x: " + e.getMessage());
+            return; // Exit the method if there's an error
+        }
+
+        String query = "INSERT INTO progress (y1, y2, y3, name, level, x) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement pst = con.prepareStatement(query)) {
+            // Set the values for y1, y2, y3, name, level, and x
+            pst.setFloat(1, y1Value);  // Use setFloat for y1
+            pst.setFloat(2, y2Value);  // Use setFloat for y2
+            pst.setInt(3, y3Value);     // SetInt for y3
+            pst.setString(4, userLogin.storedUserName()); // Set the name
+            pst.setInt(5, userLogin.storedUserLevel());   // Set the level
+            pst.setInt(6, lastXValue + 1);  // Set x to lastXValue + 1
+
+            // Execute the update to store the results in the database
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Results successfully saved to database.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error saving results to database: " + e.getMessage());
+        } finally {
+            db.closeConnection();
         }
     }
-
-
+    
+    private float parsePercentage(String labelText) {
+        try {
+            return Float.parseFloat(labelText.replace("%", "").trim());  // Return as float
+        } catch (NumberFormatException e) {
+            return 0.0f;  // Return 0.0 if parsing fails
+        }
+    }
+    
     // ---------------- MAIN ------------------
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -666,21 +973,5 @@ public class HoopsTrackerApp extends JFrame {
         });
     }
 
-    // ---------------- Daily Progress Class ------------------
-    static class DailyProgress {
-    	int shotsMade, dribblingTime, trainingDays;
-        double shootingPercentage;
-
-        public DailyProgress(int shotsMade, int dribblingTime, double shootingPercentage, int trainingDay) {
-            this.shotsMade = shotsMade;
-            this.dribblingTime = dribblingTime;
-            this.shootingPercentage = shootingPercentage;
-            this.trainingDays = trainingDay;
-        }
-
-        @Override
-        public String toString() {
-            return "Day " + trainingDays + ": Shots Made = " + shotsMade + ", Dribbling Time = " + dribblingTime + " sec, Shooting % = " + shootingPercentage + "%";
-        }
-    }
+    
 }
